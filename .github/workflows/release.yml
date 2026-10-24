@@ -1,0 +1,76 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - 'v*'
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Check types, build, and package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=moderate
+
+      - name: Check types
+        run: npm run check-types
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Package VSIX
+        run: npm run package -- --out vscode-image-gallery.vsix
+
+      - name: Upload VSIX
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-package-${{ github.run_id }}
+          path: vscode-image-gallery-*.vsix
+          if-no-files-found: error
+
+  release:
+    name: Create draft release
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download VSIX package
+        uses: actions/download-artifact@v4
+        with:
+          name: release-package-${{ github.run_id }}
+          path: release
+
+      - name: Create draft release with generated notes and VSIX
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          vsix="$(find release -maxdepth 1 -name '*.vsix' -print -quit)"
+          test -n "$vsix"
+          gh release create "${GITHUB_REF_NAME}" "$vsix" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes \
+            --draft
