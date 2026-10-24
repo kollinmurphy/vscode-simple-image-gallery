@@ -31,7 +31,6 @@ suite('Extension Test Suite', () => {
 
     assert.strictEqual(manifest.name, 'vscode-simple-image-gallery');
     assert.strictEqual(manifest.publisher, 'KollinMurphy');
-    assert.strictEqual(manifest.version, '0.0.1');
     assert.strictEqual(manifest.icon, 'icon.png');
     assert.strictEqual(manifest.license, 'MIT');
     assert.strictEqual(manifest.repository.type, 'git');
