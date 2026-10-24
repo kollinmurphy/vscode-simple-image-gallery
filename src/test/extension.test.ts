@@ -2,24 +2,41 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 
 suite('Extension Test Suite', () => {
-  vscode.window.showInformationMessage('Start all tests.');
+  let extension: vscode.Extension<unknown>;
 
-  test('Image Gallery command is registered', async () => {
-    const extension = vscode.extensions.all.find(
-      (candidate) => candidate.packageJSON.name === 'vscode-image-gallery'
+  suiteSetup(async () => {
+    const candidate = vscode.extensions.all.find(
+      (extensionCandidate) => extensionCandidate.packageJSON.name === 'vscode-image-gallery'
     );
-    assert.ok(extension, 'Image Gallery extension should be installed in the test host');
-
-    console.log('Activating extension:', extension.id);
+    assert.ok(candidate, 'Image Gallery extension should be installed in the test host');
+    extension = candidate;
     await extension.activate();
+  });
 
-    const command = 'vscode-image-gallery.openGallery';
+  test('Image Gallery commands are registered after activation', async () => {
+    const expectedCommands = [
+      'vscode-image-gallery.openGallery',
+      'vscode-image-gallery.openGalleryForFolder',
+      'vscode-image-gallery.reopenLastGallery',
+    ];
     const commands = await vscode.commands.getCommands(true);
-    console.log('Checking registered command:', command);
-    assert.strictEqual(
-      commands.includes(command),
-      true,
-      `Command ${command} should be registered`
-    );
+
+    for (const command of expectedCommands) {
+      assert.ok(commands.includes(command), `Command ${command} should be registered`);
+    }
+  });
+
+  test('extension manifest contains required marketplace metadata', () => {
+    const manifest = extension.packageJSON;
+
+    assert.strictEqual(manifest.name, 'vscode-image-gallery');
+    assert.strictEqual(manifest.publisher, 'kollinmurphy');
+    assert.strictEqual(manifest.version, '0.0.1');
+    assert.strictEqual(manifest.icon, 'icon.png');
+    assert.strictEqual(manifest.license, 'MIT');
+    assert.strictEqual(manifest.repository.type, 'git');
+    assert.match(manifest.repository.url, /^https:\/\/github\.com\//);
+    assert.ok(Array.isArray(manifest.keywords) && manifest.keywords.length >= 5);
+    assert.ok(manifest.contributes?.commands?.length >= 3);
   });
 });

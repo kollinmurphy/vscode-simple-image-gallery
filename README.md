@@ -23,20 +23,25 @@ A rich, interactive visual Image Gallery web GUI for Visual Studio Code. Browse,
 
 ## Commands
 
-- `Image Gallery: Open Image Gallery` (`vscode-image-gallery.openGallery`): Opens the Image Gallery web GUI editor panel.
+- `Image Gallery: Open gallery for workspace` (`vscode-image-gallery.openGallery`): Opens the gallery for the workspace.
+- `Image Gallery: Open gallery for folder` (`vscode-image-gallery.openGalleryForFolder`): Prompts for a folder or gallery scope.
+- `Image Gallery: Reopen Last Gallery Tab` (`vscode-image-gallery.reopenLastGallery`): Reopens the last gallery scope. The default shortcut is `Cmd+Shift+T` on macOS or `Ctrl+Shift+T` on Windows and Linux.
 
-## Architecture & Extensibility
+You can also open the gallery for an image from the editor title menu, or choose a folder from the Explorer context menu.
 
-- **Extension Host**:
-  - [`src/extension.ts`](file:///Users/kollinmurphy/development/projects/vscode-image-gallery/src/extension.ts): Entrypoint registering commands and panel serializers.
-  - [`src/panels/GalleryPanel.ts`](file:///Users/kollinmurphy/development/projects/vscode-image-gallery/src/panels/GalleryPanel.ts): Webview panel manager, file scanner, live file watcher, CSP configuration, and messaging host.
-- **Shared Types**:
-  - [`src/shared/types.ts`](file:///Users/kollinmurphy/development/projects/vscode-image-gallery/src/shared/types.ts): Strongly typed message bus and data models.
-- **Webview GUI**:
-  - [`src/webview/main.ts`](file:///Users/kollinmurphy/development/projects/vscode-image-gallery/src/webview/main.ts): Webview application logic, state persistence, keyboard navigation, and event handling.
-  - [`src/webview/styles.css`](file:///Users/kollinmurphy/development/projects/vscode-image-gallery/src/webview/styles.css): VS Code theme-aware styling leveraging CSS variables.
-- **Build System**:
-  - [`esbuild.js`](file:///Users/kollinmurphy/development/projects/vscode-image-gallery/esbuild.js): Bundles both Node.js extension host and browser webview assets (`dist/extension.js`, `dist/webview.js`, `dist/webview.css`).
+## Supported Images
+
+The gallery discovers PNG, JPG/JPEG, GIF, WebP, SVG, BMP, ICO, and AVIF assets. Generated directories such as `node_modules`, `.git`, `dist`, `out`, and `build` are excluded from workspace scans.
+
+## Architecture
+
+- [`src/extension.ts`](src/extension.ts): Registers commands and panel serialization.
+- [`src/panels/GalleryPanel.ts`](src/panels/GalleryPanel.ts): Manages the webview, image scanning, folder scopes, live file updates, and extension messages.
+- [`src/shared/types.ts`](src/shared/types.ts): Defines shared gallery models and extension/webview messages.
+- [`src/webview/components/`](src/webview/components): React-style Solid components for the gallery UI.
+- [`src/webview/state/`](src/webview/state): Gallery state and persistence.
+- [`src/webview/utils/gallery.ts`](src/webview/utils/gallery.ts): Filtering, sorting, counting, and formatting helpers.
+- [`esbuild.js`](esbuild.js): Builds the extension host and webview bundles.
 
 ## Development
 
@@ -53,4 +58,13 @@ npm run watch
 # Run type checks and linter
 npm run check-types
 npm run lint
+
+# Compile and run extension-host regression tests
+npm run pretest
+npm run test:unit
+
+# Create the marketplace package
+npm run package
 ```
+
+VS Code tests require the desktop VS Code test host. Before publishing, also verify the generated `.vsix` includes the extension icon and `dist/` bundles, and check the marketplace preview in VS Code.

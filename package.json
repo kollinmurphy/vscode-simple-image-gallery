@@ -4,11 +4,31 @@
   "description": "Rich interactive visual image gallery web GUI for browsing, inspecting, and managing workspace images.",
   "version": "0.0.1",
   "repository": {
-    "url": "https://github.com/kollinmurphy/vscode-image-gallery"
+    "type": "git",
+    "url": "https://github.com/kollinmurphy/vscode-image-gallery.git"
   },
+  "bugs": {
+    "url": "https://github.com/kollinmurphy/vscode-image-gallery/issues"
+  },
+  "homepage": "https://github.com/kollinmurphy/vscode-image-gallery#readme",
   "publisher": "kollinmurphy",
   "icon": "icon.png",
   "license": "MIT",
+  "pricing": "Free",
+  "qna": "marketplace",
+  "keywords": [
+    "image",
+    "gallery",
+    "photos",
+    "assets",
+    "viewer",
+    "png",
+    "svg"
+  ],
+  "galleryBanner": {
+    "color": "#1E1E1E",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.140.0"
   },
@@ -84,9 +104,11 @@
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "build": "npm run check-types && npm run lint && node esbuild.js --production",
     "package": "vsce package",
+    "publish": "vsce publish",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "test:unit": "vscode-test",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test"
