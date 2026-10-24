@@ -22,6 +22,20 @@ export function GalleryToolbar() {
   return (
     <header class="toolbar" role="toolbar" aria-label="Gallery Controls">
       <div class="toolbar-group toolbar-left">
+        <button
+          type="button"
+          class="scope-btn"
+          title={`Active scope: ${state().scopeLabel || 'Entire Workspace'}. Click to switch folder.`}
+          aria-label={`Active scope: ${state().scopeLabel || 'Entire Workspace'}. Click to switch folder.`}
+          onClick={actions.changeScope}
+        >
+          <span class="scope-icon" innerHTML={ICONS.folder} aria-hidden="true" />
+          <span class="scope-text">{state().scopeLabel || 'Workspace'}</span>
+          <span class="scope-chevron" innerHTML={ICONS.chevronDown} aria-hidden="true" />
+        </button>
+
+        <div class="toolbar-divider" aria-hidden="true" />
+
         <div class="search-box">
           <span class="search-icon" innerHTML={ICONS.search} aria-hidden="true" />
           <input

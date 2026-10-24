@@ -29,11 +29,13 @@ export interface WebviewState {
   viewMode: ViewMode;
   isLoading: boolean;
   workspaceName?: string;
+  scopeLabel?: string;
 }
 
 export type WebviewToExtensionMessage =
   | { type: 'ready' }
   | { type: 'refresh' }
+  | { type: 'changeScope' }
   | { type: 'openFile'; filePath: string }
   | { type: 'revealInExplorer'; filePath: string }
   | { type: 'copyToClipboard'; text: string; label?: string }
@@ -42,8 +44,8 @@ export type WebviewToExtensionMessage =
   | { type: 'showError'; message: string };
 
 export type ExtensionToWebviewMessage =
-  | { type: 'init'; payload: { workspaceName: string; images: GalleryImage[] } }
+  | { type: 'init'; payload: { workspaceName: string; images: GalleryImage[]; scopeLabel?: string } }
   | { type: 'setLoading'; payload: { isLoading: boolean } }
   | { type: 'setImages'; payload: { images: GalleryImage[] } }
+  | { type: 'setScope'; payload: { scopeLabel: string; images: GalleryImage[] } }
   | { type: 'notify'; payload: { level: 'info' | 'warn' | 'error'; message: string } };
-

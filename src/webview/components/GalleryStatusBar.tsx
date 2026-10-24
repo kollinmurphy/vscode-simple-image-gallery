@@ -13,6 +13,11 @@ export function GalleryStatusBar() {
   return (
     <footer class="status-bar" role="contentinfo">
       <div class="status-section status-left">
+        <span class="status-item status-scope" title={`Active scope: ${state().scopeLabel || 'Entire Workspace'}`}>
+          <span class="status-scope-label">Scope:</span>
+          <span class="status-scope-val">{state().scopeLabel || 'Workspace'}</span>
+          <span class="status-bullet" aria-hidden="true">·</span>
+        </span>
         <span class="status-item status-count">
           <Show
             when={isFiltered()}

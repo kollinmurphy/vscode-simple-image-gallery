@@ -50,6 +50,7 @@ async function main() {
 		sourcesContent: false,
 		platform: 'browser',
 		outfile: 'dist/webview.js',
+		loader: { '.svg': 'text' },
 		logLevel: 'silent',
 		plugins: [solidPlugin(), esbuildProblemMatcherPlugin],
 	});

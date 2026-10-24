@@ -11,22 +11,32 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:vscode-image-gallery.openGallery"
+    "onCommand:vscode-image-gallery.openGallery",
+    "onCommand:vscode-image-gallery.openGalleryForFolder"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "vscode-image-gallery.openGallery",
-        "title": "Open Image Gallery",
+        "title": "Open gallery for workspace",
         "category": "Image Gallery",
         "icon": "$(file-media)"
+      },
+      {
+        "command": "vscode-image-gallery.openGalleryForFolder",
+        "title": "Open gallery for folder",
+        "category": "Image Gallery",
+        "icon": "$(folder-opened)"
       }
     ],
     "menus": {
       "commandPalette": [
         {
           "command": "vscode-image-gallery.openGallery"
+        },
+        {
+          "command": "vscode-image-gallery.openGalleryForFolder"
         }
       ],
       "editor/title": [
@@ -37,8 +47,9 @@
       ],
       "explorer/context": [
         {
-          "command": "vscode-image-gallery.openGallery",
-          "group": "navigation"
+          "command": "vscode-image-gallery.openGalleryForFolder",
+          "group": "navigation@1",
+          "when": "explorerResourceIsFolder"
         }
       ]
     }

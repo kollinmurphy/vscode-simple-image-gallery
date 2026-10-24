@@ -51,6 +51,7 @@ export interface GalleryActions {
   copyPath(path: string): void;
   copyFullPath(path: string): void;
   navigateImage(direction: 'prev' | 'next'): void;
+  changeScope(): void;
 }
 
 export interface GalleryContextValue {
@@ -71,6 +72,7 @@ export function GalleryProvider(props: ParentProps) {
     viewMode: 'grid',
     isLoading: true,
     workspaceName: 'Workspace',
+    scopeLabel: 'Entire Workspace',
   });
 
   function updateState(
@@ -182,6 +184,9 @@ export function GalleryProvider(props: ParentProps) {
         });
       }
     },
+    changeScope() {
+      postMessage({ type: 'changeScope' });
+    },
   };
 
   function handleKeydown(event: KeyboardEvent) {
@@ -215,6 +220,7 @@ export function GalleryProvider(props: ParentProps) {
         updateState({
           workspaceName: message.payload.workspaceName,
           images: message.payload.images,
+          scopeLabel: message.payload.scopeLabel,
           isLoading: false,
         });
         break;
@@ -223,6 +229,15 @@ export function GalleryProvider(props: ParentProps) {
         break;
       case 'setImages':
         updateState({ images: message.payload.images, isLoading: false });
+        break;
+      case 'setScope':
+        updateState({
+          scopeLabel: message.payload.scopeLabel,
+          images: message.payload.images,
+          isLoading: false,
+          selectedImageId: undefined,
+          inspectingImageId: undefined,
+        });
         break;
     }
   }
