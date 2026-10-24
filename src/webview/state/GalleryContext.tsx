@@ -49,6 +49,8 @@ export interface GalleryActions {
   openImage(image: GalleryImage): void;
   revealImage(image: GalleryImage): void;
   copyPath(path: string): void;
+  copyFullPath(path: string): void;
+  navigateImage(direction: 'prev' | 'next'): void;
 }
 
 export interface GalleryContextValue {
@@ -159,6 +161,27 @@ export function GalleryProvider(props: ParentProps) {
     copyPath(path) {
       postMessage({ type: 'copyToClipboard', text: path, label: 'relative path' });
     },
+    copyFullPath(path) {
+      postMessage({ type: 'copyToClipboard', text: path, label: 'full path' });
+    },
+    navigateImage(direction) {
+      const images = filteredImages();
+      if (images.length === 0) {
+        return;
+      }
+      const currentId = state().inspectingImageId || state().selectedImageId;
+      const currentIndex = images.findIndex((image) => image.id === currentId);
+      const nextIndex = direction === 'next'
+        ? (currentIndex >= 0 ? (currentIndex + 1) % images.length : 0)
+        : (currentIndex > 0 ? currentIndex - 1 : images.length - 1);
+      const nextImage = images[nextIndex];
+      if (nextImage) {
+        updateState({
+          selectedImageId: nextImage.id,
+          ...(state().inspectingImageId ? { inspectingImageId: nextImage.id } : {}),
+        });
+      }
+    },
   };
 
   function handleKeydown(event: KeyboardEvent) {
@@ -175,25 +198,13 @@ export function GalleryProvider(props: ParentProps) {
       }
       return;
     }
-    if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') {
+    if (event.key === 'ArrowRight') {
+      actions.navigateImage('next');
       return;
     }
-
-    const images = filteredImages();
-    if (images.length === 0) {
+    if (event.key === 'ArrowLeft') {
+      actions.navigateImage('prev');
       return;
-    }
-    const currentId = state().inspectingImageId || state().selectedImageId;
-    const currentIndex = images.findIndex((image) => image.id === currentId);
-    const nextIndex = event.key === 'ArrowRight'
-      ? (currentIndex >= 0 ? (currentIndex + 1) % images.length : 0)
-      : (currentIndex > 0 ? currentIndex - 1 : images.length - 1);
-    const nextImage = images[nextIndex];
-    if (nextImage) {
-      updateState({
-        selectedImageId: nextImage.id,
-        ...(state().inspectingImageId ? { inspectingImageId: nextImage.id } : {}),
-      });
     }
   }
 

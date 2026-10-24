@@ -8,23 +8,34 @@ export function EmptyState() {
     Boolean(state().filter.searchQuery) || state().filter.selectedExtensions.length > 0;
 
   return (
-    <div class="state-container">
-      <div class="state-icon" innerHTML={ICONS.gallery}></div>
-      <div class="state-title">
-        {state().images.length === 0 ? 'No Images Found' : 'No Matching Images'}
-      </div>
-      <div class="state-desc">
+    <div class="empty-state-view" role="status">
+      <div class="empty-icon-wrap" aria-hidden="true" innerHTML={hasFilters() ? ICONS.filter : ICONS.gallery} />
+
+      <h2 class="empty-title">
+        {state().images.length === 0 ? 'No images found in workspace' : 'No images match criteria'}
+      </h2>
+
+      <p class="empty-desc">
         {state().images.length === 0
-          ? 'Add images to your workspace or click Refresh to rescan.'
-          : 'Try clearing your search query or selecting a different filter.'}
+          ? 'Add PNG, JPG, WebP, SVG, GIF, BMP, or AVIF files to your workspace, or rescan.'
+          : 'Try searching with a different keyword or resetting your format filters.'}
+      </p>
+
+      <div class="empty-actions">
+        <Show
+          when={hasFilters()}
+          fallback={
+            <button type="button" class="btn btn-secondary" onClick={actions.refreshImages}>
+              <span class="btn-icon-svg" innerHTML={ICONS.refresh} />
+              <span>Rescan Workspace</span>
+            </button>
+          }
+        >
+          <button type="button" class="btn btn-secondary" onClick={actions.resetFilters}>
+            <span>Reset Active Filters</span>
+          </button>
+        </Show>
       </div>
-      <Show when={hasFilters()} fallback={
-        <button class="btn btn-primary" onClick={actions.refreshImages}>
-          <span innerHTML={ICONS.refresh}></span> Scan Again
-        </button>
-      }>
-        <button class="btn btn-secondary" onClick={actions.resetFilters}>Reset Filters</button>
-      </Show>
     </div>
   );
 }

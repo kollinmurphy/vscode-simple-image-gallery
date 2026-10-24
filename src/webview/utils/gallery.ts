@@ -67,3 +67,15 @@ export function formatDate(timestamp: number): string {
     minute: '2-digit',
   });
 }
+
+export function getTotalSizeBytes(images: GalleryImage[]): number {
+  return images.reduce((sum, img) => sum + (img.sizeBytes || 0), 0);
+}
+
+export function getFileDirectory(filePath: string): string {
+  const lastSlash = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
+  if (lastSlash === -1) {
+    return './';
+  }
+  return filePath.slice(0, lastSlash);
+}

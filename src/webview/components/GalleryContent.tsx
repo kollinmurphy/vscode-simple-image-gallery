@@ -12,10 +12,10 @@ export function GalleryContent() {
       <Show
         when={!state().isLoading}
         fallback={
-          <div class="state-container" role="status">
-            <div class="spinner" aria-hidden="true"></div>
-            <div class="state-title">Scanning Workspace for Images...</div>
-            <div class="state-desc">Searching for PNG, JPG, WebP, SVG, GIF, and other graphics.</div>
+          <div class="empty-state-view" role="status">
+            <div class="spinner" aria-hidden="true" />
+            <h2 class="empty-title">Scanning workspace...</h2>
+            <p class="empty-desc">Discovering image files in current folders</p>
           </div>
         }
       >

@@ -1,7 +1,7 @@
 import { For } from 'solid-js';
 import type { GalleryImage } from '../../shared/types.js';
 import { ICONS } from '../icons.js';
-import { formatBytes, formatDate } from '../utils/gallery.js';
+import { formatBytes, formatDate, getFileDirectory } from '../utils/gallery.js';
 import { useGallery } from '../state/GalleryContext.js';
 
 interface ImageListProps {
@@ -12,44 +12,92 @@ export function ImageList(props: ImageListProps) {
   const { state, actions } = useGallery();
 
   return (
-    <div class="image-list">
-      <For each={props.images}>
-        {(image) => (
-          <div
-            class={`list-row ${image.id === state().selectedImageId ? 'selected' : ''}`}
-            onClick={() => actions.selectImage(image.id)}
-            onDblClick={() => actions.inspectImage(image.id)}
-          >
-            <div class="list-thumb checkerboard">
-              <img src={image.uri} alt={image.name} loading="lazy" />
-            </div>
-            <div class="list-name" title={image.name}>{image.name}</div>
-            <div class="list-path" title={image.path}>{image.path}</div>
-            <div class="list-size">{formatBytes(image.sizeBytes)}</div>
-            <div class="list-date">{formatDate(image.modifiedTimestamp)}</div>
-            <div class="list-actions">
-              <button
-                class="btn-icon btn-action-open"
-                title="Open in VS Code Editor"
-                aria-label={`Open ${image.name} in VS Code Editor`}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  actions.openImage(image);
+    <div class="image-list-table" role="table" aria-label="Image files list">
+      <div class="list-header" role="row">
+        <span class="col-thumb" role="columnheader">Preview</span>
+        <span class="col-name" role="columnheader">Name</span>
+        <span class="col-path" role="columnheader">Directory</span>
+        <span class="col-ext" role="columnheader">Type</span>
+        <span class="col-size" role="columnheader">Size</span>
+        <span class="col-date" role="columnheader">Modified</span>
+        <span class="col-actions" role="columnheader">Actions</span>
+      </div>
+
+      <div class="list-body" role="rowgroup">
+        <For each={props.images}>
+          {(image) => {
+            const isSelected = () => image.id === state().selectedImageId;
+
+            return (
+              <div
+                class={`list-row ${isSelected() ? 'selected' : ''}`}
+                role="row"
+                tabIndex={0}
+                aria-selected={isSelected()}
+                onClick={() => actions.selectImage(image.id)}
+                onDblClick={() => actions.inspectImage(image.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    actions.inspectImage(image.id);
+                  }
                 }}
-              ><span innerHTML={ICONS.external}></span></button>
-              <button
-                class="btn-icon btn-action-copy"
-                title="Copy Relative Path"
-                aria-label={`Copy path for ${image.name}`}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  actions.copyPath(image.path);
-                }}
-              ><span innerHTML={ICONS.copy}></span></button>
-            </div>
-          </div>
-        )}
-      </For>
+              >
+                <div class="col-thumb" role="cell">
+                  <div class="list-thumb checkerboard">
+                    <img
+                      src={image.uri}
+                      alt={image.name}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-name" role="cell" title={image.name}>
+                  <span class="list-filename">{image.name}</span>
+                </div>
+
+                <div class="col-path" role="cell" title={image.path}>
+                  <span class="list-filepath">{getFileDirectory(image.path)}</span>
+                </div>
+
+                <div class="col-ext" role="cell">
+                  <span class="format-badge">{image.extension.toUpperCase()}</span>
+                </div>
+
+                <div class="col-size" role="cell">
+                  <span>{formatBytes(image.sizeBytes)}</span>
+                </div>
+
+                <div class="col-date" role="cell">
+                  <span>{formatDate(image.modifiedTimestamp)}</span>
+                </div>
+
+                <div class="col-actions" role="cell">
+                  <div class="row-actions" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      type="button"
+                      class="btn-icon-subtle"
+                      title="Open in VS Code"
+                      aria-label={`Open ${image.name} in VS Code`}
+                      onClick={() => actions.openImage(image)}
+                      innerHTML={ICONS.external}
+                    />
+                    <button
+                      type="button"
+                      class="btn-icon-subtle"
+                      title="Copy Relative Path"
+                      aria-label={`Copy path for ${image.name}`}
+                      onClick={() => actions.copyPath(image.path)}
+                      innerHTML={ICONS.copy}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          }}
+        </For>
+      </div>
     </div>
   );
 }
