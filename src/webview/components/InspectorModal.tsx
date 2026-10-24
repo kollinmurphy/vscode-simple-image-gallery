@@ -52,6 +52,10 @@ export function InspectorModal() {
   }
 
   function handlePointerDown(event: PointerEvent) {
+    if (event.button !== 0) {
+      return;
+    }
+    event.preventDefault();
     dragStart = {
       x: event.clientX,
       y: event.clientY,
@@ -242,7 +246,9 @@ export function InspectorModal() {
                   class="preview-image"
                   src={image().uri}
                   alt={image().name}
+                  draggable={false}
                   style={imageStyle()}
+                  onDragStart={(event) => event.preventDefault()}
                   onPointerDown={handlePointerDown}
                   onPointerMove={handlePointerMove}
                   onPointerUp={stopDragging}
@@ -255,14 +261,6 @@ export function InspectorModal() {
                     requestAnimationFrame(zoomToFit);
                   }}
                 />
-
-                <Show when={dimensions()}>
-                  {(dim) => (
-                    <div class="preview-dim-badge">
-                      {dim().width} × {dim().height} px
-                    </div>
-                  )}
-                </Show>
               </div>
 
               <aside class="modal-sidebar">

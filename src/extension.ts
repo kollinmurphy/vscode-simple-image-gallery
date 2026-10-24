@@ -23,12 +23,11 @@ async function resolveTargetFolder(uri?: vscode.Uri): Promise<vscode.Uri | undef
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  // Command: Open for Entire Workspace (or passed URI if invoked with resource)
+  // Command: Open for Entire Workspace; a resource URI selects its preview without changing scope.
   const openGalleryDisposable = vscode.commands.registerCommand(
     'vscode-image-gallery.openGallery',
     async (uri?: vscode.Uri) => {
-      const targetFolder = await resolveTargetFolder(uri);
-      GalleryPanel.createOrShow(context.extensionUri, targetFolder);
+      GalleryPanel.createOrShow(context.extensionUri, undefined, uri?.toString());
     }
   );
 

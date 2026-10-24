@@ -139,15 +139,21 @@ export class GalleryPanel {
   private _disposables: vscode.Disposable[] = [];
   private _watcherDisposable?: vscode.Disposable;
   private _refreshDebounceTimer?: NodeJS.Timeout;
+  private _pendingInspectingImageId?: string;
 
-  public static createOrShow(extensionUri: vscode.Uri, targetFolderUri?: vscode.Uri) {
+  public static async createOrShow(
+    extensionUri: vscode.Uri,
+    targetFolderUri?: vscode.Uri,
+    inspectingImageId?: string
+  ) {
     const column = vscode.window.activeTextEditor
       ? vscode.window.activeTextEditor.viewColumn
       : undefined;
 
     if (GalleryPanel.currentPanel) {
-      if (targetFolderUri !== undefined) {
-        GalleryPanel.currentPanel.setTargetFolder(targetFolderUri);
+      GalleryPanel.currentPanel.setPendingInspection(inspectingImageId);
+      if (targetFolderUri !== undefined || inspectingImageId !== undefined) {
+        await GalleryPanel.currentPanel.setTargetFolder(targetFolderUri);
       }
       GalleryPanel.currentPanel._panel.reveal(column);
       return;
@@ -171,7 +177,12 @@ export class GalleryPanel {
     GalleryPanel._lastTargetFolderUri = targetFolderUri;
     GalleryPanel._hasOpenedGallery = true;
     void vscode.commands.executeCommand('setContext', 'vscode-image-gallery.galleryClosed', false);
-    GalleryPanel.currentPanel = new GalleryPanel(panel, extensionUri, targetFolderUri);
+    GalleryPanel.currentPanel = new GalleryPanel(
+      panel,
+      extensionUri,
+      targetFolderUri,
+      inspectingImageId
+    );
   }
 
   public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
@@ -192,11 +203,13 @@ export class GalleryPanel {
   private constructor(
     panel: vscode.WebviewPanel,
     extensionUri: vscode.Uri,
-    targetFolderUri?: vscode.Uri
+    targetFolderUri?: vscode.Uri,
+    inspectingImageId?: string
   ) {
     this._panel = panel;
     this._extensionUri = extensionUri;
     this._targetFolderUri = targetFolderUri;
+    this._pendingInspectingImageId = inspectingImageId;
 
     this._panel.iconPath = vscode.Uri.joinPath(this._extensionUri, 'icon.png');
 
@@ -214,6 +227,10 @@ export class GalleryPanel {
 
     this._setupFileWatcher();
     this._update();
+  }
+
+  public setPendingInspection(inspectingImageId?: string) {
+    this._pendingInspectingImageId = inspectingImageId;
   }
 
   public async setTargetFolder(folderUri?: vscode.Uri) {
@@ -235,8 +252,10 @@ export class GalleryPanel {
       payload: {
         scopeLabel: this._getScopeLabel(),
         images,
+        inspectingImageId: this._pendingInspectingImageId,
       },
     });
+    this._pendingInspectingImageId = undefined;
   }
 
   private _getScopeLabel(): string {
@@ -294,8 +313,10 @@ export class GalleryPanel {
             workspaceName,
             images,
             scopeLabel: this._getScopeLabel(),
+            inspectingImageId: this._pendingInspectingImageId,
           },
         });
+        this._pendingInspectingImageId = undefined;
         break;
       }
       case 'refresh': {

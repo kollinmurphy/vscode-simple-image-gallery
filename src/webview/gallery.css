@@ -985,6 +985,7 @@ select:focus-visible,
   object-fit: contain;
   transform-origin: center;
   cursor: grab;
+  -webkit-user-drag: none;
   user-select: none;
   touch-action: none;
 }
@@ -1016,25 +1017,6 @@ select:focus-visible,
   width: auto;
   padding: 0 8px;
   font-size: 11px;
-}
-
-.preview-dim-badge {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  padding: 3px 8px;
-  font-size: 11px;
-  font-family: var(--font-mono);
-  color: var(--vscode-foreground);
-  background: color-mix(
-    in srgb,
-    var(--vscode-editor-background) 85%,
-    transparent
-  );
-  backdrop-filter: blur(6px);
-  border: var(--border-subtle);
-  border-radius: var(--radius-sm);
-  pointer-events: none;
 }
 
 /* Sidebar Details */

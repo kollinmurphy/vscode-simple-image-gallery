@@ -241,6 +241,7 @@ export function GalleryProvider(props: ParentProps) {
           workspaceName: message.payload.workspaceName,
           images: message.payload.images,
           scopeLabel: message.payload.scopeLabel,
+          inspectingImageId: message.payload.inspectingImageId,
           isLoading: false,
         });
         break;
@@ -255,8 +256,11 @@ export function GalleryProvider(props: ParentProps) {
           scopeLabel: message.payload.scopeLabel,
           images: message.payload.images,
           isLoading: false,
-          inspectingImageId: undefined,
+          inspectingImageId: message.payload.inspectingImageId,
         });
+        break;
+      case "inspectImage":
+        updateState({ inspectingImageId: message.payload.imageId });
         break;
     }
   }

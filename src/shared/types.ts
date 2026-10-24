@@ -45,8 +45,9 @@ export type WebviewToExtensionMessage =
   | { type: 'showError'; message: string };
 
 export type ExtensionToWebviewMessage =
-  | { type: 'init'; payload: { workspaceName: string; images: GalleryImage[]; scopeLabel?: string } }
+  | { type: 'init'; payload: { workspaceName: string; images: GalleryImage[]; scopeLabel?: string; inspectingImageId?: string } }
   | { type: 'setLoading'; payload: { isLoading: boolean } }
   | { type: 'setImages'; payload: { images: GalleryImage[] } }
-  | { type: 'setScope'; payload: { scopeLabel: string; images: GalleryImage[] } }
+  | { type: 'setScope'; payload: { scopeLabel: string; images: GalleryImage[]; inspectingImageId?: string } }
+  | { type: 'inspectImage'; payload: { imageId: string } }
   | { type: 'notify'; payload: { level: 'info' | 'warn' | 'error'; message: string } };

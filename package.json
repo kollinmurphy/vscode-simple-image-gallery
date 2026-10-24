@@ -63,7 +63,8 @@
       "editor/title": [
         {
           "command": "vscode-image-gallery.openGallery",
-          "group": "navigation"
+          "group": "navigation",
+          "when": "resourceScheme != 'vscode-webview' && resourceScheme != 'webview-panel' && resourceExtname =~ /\\.(avif|bmp|gif|ico|jpeg|jpg|png|svg|webp)$/i"
         }
       ],
       "explorer/context": [
