@@ -7,6 +7,7 @@ export interface GalleryImage {
   sizeBytes: number;
   extension: string;
   modifiedTimestamp: number;
+  createdTimestamp: number;
 }
 
 export type ViewMode = 'grid' | 'compact' | 'list';
@@ -23,7 +24,6 @@ export interface GalleryFilter {
 
 export interface WebviewState {
   images: GalleryImage[];
-  selectedImageId?: string;
   inspectingImageId?: string;
   filter: GalleryFilter;
   viewMode: ViewMode;

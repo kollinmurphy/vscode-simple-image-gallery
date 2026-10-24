@@ -154,9 +154,6 @@ export function InspectorModal() {
           >
             <header class="modal-header">
               <div class="modal-title-group">
-                <span class="format-badge">
-                  {image().extension.toUpperCase()}
-                </span>
                 <span class="modal-title" title={image().name}>
                   {image().name}
                 </span>
@@ -311,31 +308,9 @@ export function InspectorModal() {
                     </div>
 
                     <div class="meta-row">
-                      <dt class="meta-label">Format</dt>
-                      <dd class="meta-value">
-                        <span class="format-badge">
-                          {image().extension.toUpperCase()}
-                        </span>
-                      </dd>
-                    </div>
-
-                    <div class="meta-row">
-                      <dt class="meta-label">Folder</dt>
-                      <dd
-                        class="meta-value text-truncate"
-                        title={getFileDirectory(image().path)}
-                      >
-                        {getFileDirectory(image().path)}
-                      </dd>
-                    </div>
-
-                    <div class="meta-row">
                       <dt class="meta-label">Relative Path</dt>
                       <dd class="meta-value copyable-val">
-                        <span
-                          class="text-truncate font-mono"
-                          title={image().path}
-                        >
+                        <span class="font-mono" title={image().path}>
                           {image().path}
                         </span>
                         <button
@@ -348,6 +323,36 @@ export function InspectorModal() {
                             copiedKey() === "relpath" ? ICONS.check : ICONS.copy
                           }
                         />
+                      </dd>
+                    </div>
+
+                    <div class="meta-row">
+                      <dt class="meta-label">Full Path</dt>
+                      <dd class="meta-value copyable-val">
+                        <span class="font-mono" title={image().fullPath}>
+                          {image().fullPath}
+                        </span>
+                        <button
+                          type="button"
+                          class="btn-icon-subtle"
+                          title="Copy full path"
+                          aria-label="Copy full path"
+                          onClick={() =>
+                            handleCopy(image().fullPath, "fullPath", true)
+                          }
+                          innerHTML={
+                            copiedKey() === "fullPath"
+                              ? ICONS.check
+                              : ICONS.copy
+                          }
+                        />
+                      </dd>
+                    </div>
+
+                    <div class="meta-row">
+                      <dt class="meta-label">Created</dt>
+                      <dd class="meta-value">
+                        {formatDate(image().createdTimestamp)}
                       </dd>
                     </div>
 
@@ -377,24 +382,6 @@ export function InspectorModal() {
                   >
                     <span class="btn-icon-svg" innerHTML={ICONS.folder} />
                     <span>Reveal in Explorer</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    onClick={() => handleCopy(image().path, "btn-relpath")}
-                  >
-                    <span
-                      class="btn-icon-svg"
-                      innerHTML={
-                        copiedKey() === "btn-relpath" ? ICONS.check : ICONS.copy
-                      }
-                    />
-                    <span>
-                      {copiedKey() === "btn-relpath"
-                        ? "Copied Path!"
-                        : "Copy Relative Path"}
-                    </span>
                   </button>
                 </div>
               </aside>

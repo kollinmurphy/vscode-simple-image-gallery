@@ -5,8 +5,8 @@ import {
   onCleanup,
   onMount,
   useContext,
-} from 'solid-js';
-import type { Accessor, ParentProps } from 'solid-js';
+} from "solid-js";
+import type { Accessor, ParentProps } from "solid-js";
 import type {
   ExtensionToWebviewMessage,
   GalleryFilter,
@@ -15,9 +15,9 @@ import type {
   ViewMode,
   WebviewState,
   WebviewToExtensionMessage,
-} from '../../shared/types.js';
-import { countExtensions, filterImages } from '../utils/gallery.js';
-import type { ExtensionCount } from '../utils/gallery.js';
+} from "../../shared/types.js";
+import { countExtensions, filterImages } from "../utils/gallery.js";
+import type { ExtensionCount } from "../utils/gallery.js";
 
 declare function acquireVsCodeApi<T = unknown>(): {
   postMessage(message: unknown): void;
@@ -27,10 +27,10 @@ declare function acquireVsCodeApi<T = unknown>(): {
 
 const vscode = acquireVsCodeApi<WebviewState>();
 const DEFAULT_FILTER: GalleryFilter = {
-  searchQuery: '',
+  searchQuery: "",
   selectedExtensions: [],
-  sortField: 'name',
-  sortOrder: 'asc',
+  sortField: "name",
+  sortOrder: "asc",
   zoomLevel: 180,
 };
 
@@ -43,14 +43,13 @@ export interface GalleryActions {
   toggleSortOrder(): void;
   setZoomLevel(level: number): void;
   setViewMode(mode: ViewMode): void;
-  selectImage(imageId: string): void;
   inspectImage(imageId: string): void;
   closeInspector(): void;
   openImage(image: GalleryImage): void;
   revealImage(image: GalleryImage): void;
   copyPath(path: string): void;
   copyFullPath(path: string): void;
-  navigateImage(direction: 'prev' | 'next'): void;
+  navigateImage(direction: "prev" | "next"): void;
   changeScope(): void;
 }
 
@@ -58,7 +57,6 @@ export interface GalleryContextValue {
   state: Accessor<WebviewState>;
   filteredImages: Accessor<GalleryImage[]>;
   extensions: Accessor<ExtensionCount[]>;
-  selectedImage: Accessor<GalleryImage | undefined>;
   inspectingImage: Accessor<GalleryImage | undefined>;
   actions: GalleryActions;
 }
@@ -66,20 +64,25 @@ export interface GalleryContextValue {
 const GalleryContext = createContext<GalleryContextValue>();
 
 export function GalleryProvider(props: ParentProps) {
-  const [state, setStateSignal] = createSignal<WebviewState>(vscode.getState() ?? {
-    images: [],
-    filter: DEFAULT_FILTER,
-    viewMode: 'grid',
-    isLoading: true,
-    workspaceName: 'Workspace',
-    scopeLabel: 'Entire Workspace',
-  });
+  const [state, setStateSignal] = createSignal<WebviewState>(
+    vscode.getState() ?? {
+      images: [],
+      filter: DEFAULT_FILTER,
+      viewMode: "grid",
+      isLoading: true,
+      workspaceName: "Workspace",
+      scopeLabel: "Entire Workspace",
+    },
+  );
 
   function updateState(
-    updater: Partial<WebviewState> | ((previous: WebviewState) => Partial<WebviewState>)
+    updater:
+      | Partial<WebviewState>
+      | ((previous: WebviewState) => Partial<WebviewState>),
   ) {
     setStateSignal((previous) => {
-      const partial = typeof updater === 'function' ? updater(previous) : updater;
+      const partial =
+        typeof updater === "function" ? updater(previous) : updater;
       const next = { ...previous, ...partial };
       vscode.setState(next);
       return next;
@@ -90,31 +93,32 @@ export function GalleryProvider(props: ParentProps) {
     vscode.postMessage(message);
   }
 
-  const filteredImages = createMemo(() => filterImages(state().images, state().filter));
-  const extensions = createMemo(() => countExtensions(state().images));
-  const selectedImage = createMemo(() =>
-    state().images.find((image) => image.id === state().selectedImageId)
+  const filteredImages = createMemo(() =>
+    filterImages(state().images, state().filter),
   );
+  const extensions = createMemo(() => countExtensions(state().images));
   const inspectingImage = createMemo(() =>
-    state().images.find((image) => image.id === state().inspectingImageId)
+    state().images.find((image) => image.id === state().inspectingImageId),
   );
 
   const actions: GalleryActions = {
     refreshImages() {
       updateState({ isLoading: true });
-      postMessage({ type: 'refresh' });
+      postMessage({ type: "refresh" });
     },
     resetFilters() {
       updateState((previous) => ({
-        filter: { ...previous.filter, searchQuery: '', selectedExtensions: [] },
+        filter: { ...previous.filter, searchQuery: "", selectedExtensions: [] },
       }));
     },
     setSearchQuery(query) {
-      updateState((previous) => ({ filter: { ...previous.filter, searchQuery: query } }));
+      updateState((previous) => ({
+        filter: { ...previous.filter, searchQuery: query },
+      }));
     },
     selectExtension(extension) {
       updateState((previous) => {
-        if (extension === 'all') {
+        if (extension === "all") {
           return { filter: { ...previous.filter, selectedExtensions: [] } };
         }
         const selectedExtensions = previous.filter.selectedExtensions;
@@ -129,86 +133,87 @@ export function GalleryProvider(props: ParentProps) {
       });
     },
     setSortField(field) {
-      updateState((previous) => ({ filter: { ...previous.filter, sortField: field } }));
+      updateState((previous) => ({
+        filter: { ...previous.filter, sortField: field },
+      }));
     },
     toggleSortOrder() {
       updateState((previous) => ({
         filter: {
           ...previous.filter,
-          sortOrder: previous.filter.sortOrder === 'asc' ? 'desc' : 'asc',
+          sortOrder: previous.filter.sortOrder === "asc" ? "desc" : "asc",
         },
       }));
     },
     setZoomLevel(level) {
-      updateState((previous) => ({ filter: { ...previous.filter, zoomLevel: level } }));
+      updateState((previous) => ({
+        filter: { ...previous.filter, zoomLevel: level },
+      }));
     },
     setViewMode(mode) {
       updateState({ viewMode: mode });
     },
-    selectImage(imageId) {
-      updateState({ selectedImageId: imageId });
-    },
     inspectImage(imageId) {
-      updateState({ selectedImageId: imageId, inspectingImageId: imageId });
+      updateState({ inspectingImageId: imageId });
     },
     closeInspector() {
       updateState({ inspectingImageId: undefined });
     },
     openImage(image) {
-      postMessage({ type: 'openFile', filePath: image.fullPath });
+      postMessage({ type: "openFile", filePath: image.fullPath });
     },
     revealImage(image) {
-      postMessage({ type: 'revealInExplorer', filePath: image.fullPath });
+      postMessage({ type: "revealInExplorer", filePath: image.fullPath });
     },
     copyPath(path) {
-      postMessage({ type: 'copyToClipboard', text: path, label: 'relative path' });
+      postMessage({
+        type: "copyToClipboard",
+        text: path,
+        label: "relative path",
+      });
     },
     copyFullPath(path) {
-      postMessage({ type: 'copyToClipboard', text: path, label: 'full path' });
+      postMessage({ type: "copyToClipboard", text: path, label: "full path" });
     },
     navigateImage(direction) {
       const images = filteredImages();
       if (images.length === 0) {
         return;
       }
-      const currentId = state().inspectingImageId || state().selectedImageId;
+      const currentId = state().inspectingImageId;
       const currentIndex = images.findIndex((image) => image.id === currentId);
-      const nextIndex = direction === 'next'
-        ? (currentIndex >= 0 ? (currentIndex + 1) % images.length : 0)
-        : (currentIndex > 0 ? currentIndex - 1 : images.length - 1);
+      const nextIndex =
+        direction === "next"
+          ? currentIndex >= 0
+            ? (currentIndex + 1) % images.length
+            : 0
+          : currentIndex > 0
+            ? currentIndex - 1
+            : images.length - 1;
       const nextImage = images[nextIndex];
       if (nextImage) {
-        updateState({
-          selectedImageId: nextImage.id,
-          ...(state().inspectingImageId ? { inspectingImageId: nextImage.id } : {}),
-        });
+        updateState({ inspectingImageId: nextImage.id });
       }
     },
     changeScope() {
-      postMessage({ type: 'changeScope' });
+      postMessage({ type: "changeScope" });
     },
   };
 
   function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Escape') {
+    if (event.key === "Escape") {
       if (state().inspectingImageId) {
         actions.closeInspector();
       }
       return;
     }
-    if (event.key === 'Enter') {
-      const selectedImageId = state().selectedImageId;
-      if (selectedImageId && !state().inspectingImageId) {
-        actions.inspectImage(selectedImageId);
-      }
+
+    if (event.key === "ArrowRight") {
+      actions.navigateImage("next");
       return;
     }
-    if (event.key === 'ArrowRight') {
-      actions.navigateImage('next');
-      return;
-    }
-    if (event.key === 'ArrowLeft') {
-      actions.navigateImage('prev');
+    if (event.key === "ArrowLeft") {
+      actions.navigateImage("prev");
       return;
     }
   }
@@ -216,7 +221,7 @@ export function GalleryProvider(props: ParentProps) {
   function handleMessage(event: MessageEvent) {
     const message = event.data as ExtensionToWebviewMessage;
     switch (message.type) {
-      case 'init':
+      case "init":
         updateState({
           workspaceName: message.payload.workspaceName,
           images: message.payload.images,
@@ -224,18 +229,17 @@ export function GalleryProvider(props: ParentProps) {
           isLoading: false,
         });
         break;
-      case 'setLoading':
+      case "setLoading":
         updateState({ isLoading: message.payload.isLoading });
         break;
-      case 'setImages':
+      case "setImages":
         updateState({ images: message.payload.images, isLoading: false });
         break;
-      case 'setScope':
+      case "setScope":
         updateState({
           scopeLabel: message.payload.scopeLabel,
           images: message.payload.images,
           isLoading: false,
-          selectedImageId: undefined,
           inspectingImageId: undefined,
         });
         break;
@@ -243,32 +247,35 @@ export function GalleryProvider(props: ParentProps) {
   }
 
   onMount(() => {
-    window.addEventListener('keydown', handleKeydown);
-    window.addEventListener('message', handleMessage);
-    postMessage({ type: 'ready' });
+    window.addEventListener("keydown", handleKeydown);
+    window.addEventListener("message", handleMessage);
+    postMessage({ type: "ready" });
   });
 
   onCleanup(() => {
-    window.removeEventListener('keydown', handleKeydown);
-    window.removeEventListener('message', handleMessage);
+    window.removeEventListener("keydown", handleKeydown);
+    window.removeEventListener("message", handleMessage);
   });
 
   const value: GalleryContextValue = {
     state,
     filteredImages,
     extensions,
-    selectedImage,
     inspectingImage,
     actions,
   };
 
-  return <GalleryContext.Provider value={value}>{props.children}</GalleryContext.Provider>;
+  return (
+    <GalleryContext.Provider value={value}>
+      {props.children}
+    </GalleryContext.Provider>
+  );
 }
 
 export function useGallery(): GalleryContextValue {
   const context = useContext(GalleryContext);
   if (!context) {
-    throw new Error('useGallery must be used inside GalleryProvider');
+    throw new Error("useGallery must be used inside GalleryProvider");
   }
   return context;
 }

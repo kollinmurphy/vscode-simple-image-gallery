@@ -17,7 +17,8 @@
   ],
   "activationEvents": [
     "onCommand:vscode-image-gallery.openGallery",
-    "onCommand:vscode-image-gallery.openGalleryForFolder"
+    "onCommand:vscode-image-gallery.openGalleryForFolder",
+    "onWebviewPanel:vscode-image-gallery.galleryPanel"
   ],
   "main": "./dist/extension.js",
   "contributes": {

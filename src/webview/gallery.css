@@ -502,22 +502,6 @@ select:focus-visible,
   padding: 16px;
 }
 
-/* Subtle, production-grade checkerboard pattern */
-.checkerboard {
-  background-color: var(--vscode-editor-background);
-  background-image:
-    linear-gradient(45deg, rgba(128, 128, 128, 0.08) 25%, transparent 25%),
-    linear-gradient(-45deg, rgba(128, 128, 128, 0.08) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, rgba(128, 128, 128, 0.08) 75%),
-    linear-gradient(-45deg, transparent 75%, rgba(128, 128, 128, 0.08) 75%);
-  background-size: 14px 14px;
-  background-position:
-    0 0,
-    0 7px,
-    7px -7px,
-    -7px 0px;
-}
-
 /* Format Badges */
 .format-badge {
   display: inline-flex;
@@ -567,11 +551,6 @@ select:focus-visible,
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.gallery-card.selected {
-  border-color: var(--vscode-focusBorder);
-  box-shadow: 0 0 0 1px var(--vscode-focusBorder);
-}
-
 .card-preview {
   position: relative;
   display: grid;
@@ -589,10 +568,6 @@ select:focus-visible,
   max-height: 100%;
   object-fit: contain;
   transition: transform var(--transition-base);
-}
-
-.gallery-card:hover .card-preview img {
-  transform: scale(1.02);
 }
 
 /* Card Hover Quick Actions */
@@ -659,12 +634,23 @@ select:focus-visible,
 }
 
 .card-name {
+  width: 100%;
   font-size: 12px;
   font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.35;
   color: var(--vscode-foreground);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.card-path {
+  color: var(--vscode-descriptionForeground);
+}
+
+.card-filename {
+  color: var(--vscode-foreground);
+  font-weight: 600;
 }
 
 .card-meta {
@@ -752,14 +738,6 @@ select:focus-visible,
 
 .list-row:hover {
   background: var(--vscode-list-hoverBackground, rgba(128, 128, 128, 0.08));
-}
-
-.list-row.selected {
-  background: var(
-    --vscode-list-activeSelectionBackground,
-    rgba(128, 128, 128, 0.16)
-  );
-  border-color: var(--vscode-focusBorder);
 }
 
 .col-thumb {
@@ -1194,21 +1172,6 @@ select:focus-visible,
   align-items: center;
   gap: 6px;
   min-width: 0;
-}
-
-.status-selected {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.status-selected-label {
-  font-weight: 500;
-  color: var(--vscode-foreground);
-}
-
-.status-selected-name {
-  color: var(--vscode-foreground);
 }
 
 .status-bullet {

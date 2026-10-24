@@ -171,7 +171,6 @@ export class GalleryPanel {
     };
 
     this._updateTitle();
-    this._update();
 
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
@@ -184,6 +183,7 @@ export class GalleryPanel {
     );
 
     this._setupFileWatcher();
+    this._update();
   }
 
   public async setTargetFolder(folderUri?: vscode.Uri) {
@@ -386,6 +386,7 @@ export class GalleryPanel {
             sizeBytes: stat.size,
             extension: ext,
             modifiedTimestamp: stat.mtime,
+            createdTimestamp: stat.ctime,
           });
         } catch {
           // Skip inaccessible files
