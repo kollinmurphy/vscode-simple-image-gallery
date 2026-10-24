@@ -1,7 +1,7 @@
 import { render } from 'solid-js/web';
 import { App } from './components/App.js';
 import { GalleryProvider } from './state/GalleryContext.js';
-import './styles.css';
+import './gallery.css';
 
 const app = document.getElementById('app');
 

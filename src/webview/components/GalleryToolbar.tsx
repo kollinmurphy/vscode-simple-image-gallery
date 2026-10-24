@@ -67,6 +67,13 @@ export function GalleryToolbar() {
       </div>
 
       <div class="toolbar-section">
+        <button
+          class="btn-icon"
+          title="Refresh images"
+          aria-label="Refresh images"
+          onClick={actions.refreshImages}
+          innerHTML={ICONS.refresh}
+        />
         <select
           class="select-input"
           aria-label="Sort images"

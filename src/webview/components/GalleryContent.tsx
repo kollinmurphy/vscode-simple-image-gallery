@@ -8,7 +8,7 @@ export function GalleryContent() {
   const { state, filteredImages } = useGallery();
 
   return (
-    <main class="content-area" aria-live="polite">
+    <main class="content-area">
       <Show
         when={!state().isLoading}
         fallback={
