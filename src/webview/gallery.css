@@ -502,20 +502,6 @@ select:focus-visible,
   padding: 16px;
 }
 
-/* Format Badges */
-.format-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 1px 5px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--vscode-descriptionForeground);
-  background: var(--vscode-badge-background, rgba(128, 128, 128, 0.14));
-  border-radius: 3px;
-}
-
 /* ==========================================================================
    Image Grid View
    ========================================================================== */
@@ -634,23 +620,32 @@ select:focus-visible,
 }
 
 .card-name {
+  display: grid;
+  grid-template-rows: repeat(2, 18px);
   width: 100%;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.35;
-  color: var(--vscode-foreground);
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: normal;
+  min-width: 0;
+  line-height: 18px;
+}
+
+.card-path,
+.card-filename {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .card-path {
+  font-size: 11px;
+  font-weight: 400;
   color: var(--vscode-descriptionForeground);
 }
 
 .card-filename {
-  color: var(--vscode-foreground);
+  font-size: 12px;
   font-weight: 600;
+  color: var(--vscode-foreground);
 }
 
 .card-meta {
@@ -668,8 +663,10 @@ select:focus-visible,
 
 /* Compact Grid View */
 .image-grid.compact {
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(var(--card-width, 100px), 100%), 1fr)
+  );
 }
 
 .image-grid.compact .card-preview {
@@ -727,6 +724,7 @@ select:focus-visible,
 .list-row {
   display: flex;
   align-items: center;
+  min-height: var(--list-thumb-size, 36px);
   gap: 12px;
   padding: 5px 10px;
   min-width: 0;
@@ -741,15 +739,15 @@ select:focus-visible,
 }
 
 .col-thumb {
-  flex: 0 0 36px;
-  width: 36px;
+  flex: 0 0 var(--list-thumb-size, 36px);
+  width: var(--list-thumb-size, 36px);
 }
 
 .list-thumb {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: var(--list-thumb-size, 36px);
+  height: var(--list-thumb-size, 36px);
   border: var(--border-subtle);
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -801,6 +799,7 @@ select:focus-visible,
   font-variant-numeric: tabular-nums;
   color: var(--vscode-descriptionForeground);
   white-space: nowrap;
+  text-align: right;
 }
 
 .col-date {

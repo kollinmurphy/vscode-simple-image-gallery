@@ -14,17 +14,12 @@ export function ImageList(props: ImageListProps) {
   return (
     <div class="image-list-table" role="table" aria-label="Image files list">
       <div class="list-header" role="row">
-        <span class="col-thumb" role="columnheader">
-          Preview
-        </span>
+        <span class="col-thumb" role="columnheader"></span>
         <span class="col-name" role="columnheader">
           Name
         </span>
         <span class="col-path" role="columnheader">
           Directory
-        </span>
-        <span class="col-ext" role="columnheader">
-          Type
         </span>
         <span class="col-size" role="columnheader">
           Size
@@ -32,9 +27,7 @@ export function ImageList(props: ImageListProps) {
         <span class="col-date" role="columnheader">
           Modified
         </span>
-        <span class="col-actions" role="columnheader">
-          Actions
-        </span>
+        <span class="col-actions" role="columnheader"></span>
       </div>
 
       <div class="list-body" role="rowgroup">
@@ -69,12 +62,6 @@ export function ImageList(props: ImageListProps) {
               <div class="col-path" role="cell" title={image.path}>
                 <span class="list-filepath">
                   {getFileDirectory(image.path)}
-                </span>
-              </div>
-
-              <div class="col-ext" role="cell">
-                <span class="format-badge">
-                  {image.extension.toUpperCase()}
                 </span>
               </div>
 

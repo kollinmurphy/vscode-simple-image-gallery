@@ -31,7 +31,7 @@ const DEFAULT_FILTER: GalleryFilter = {
   selectedExtensions: [],
   sortField: "name",
   sortOrder: "asc",
-  zoomLevel: 180,
+  zoomLevel: 275,
 };
 
 export interface GalleryActions {
@@ -151,7 +151,18 @@ export function GalleryProvider(props: ParentProps) {
       }));
     },
     setViewMode(mode) {
-      updateState({ viewMode: mode });
+      updateState((previous) => ({
+        viewMode: mode,
+        filter: {
+          ...previous.filter,
+          zoomLevel:
+            mode === "compact"
+              ? 100
+              : mode === "grid"
+                ? 275
+                : previous.filter.zoomLevel,
+        },
+      }));
     },
     inspectImage(imageId) {
       updateState({ inspectingImageId: imageId });
