@@ -1,18 +1,116 @@
-import { createSignal, createEffect, Show } from 'solid-js';
-import { ICONS } from '../icons.js';
-import { useGallery } from '../state/GalleryContext.js';
-import { formatBytes, formatDate, getFileDirectory } from '../utils/gallery.js';
+import { createSignal, createEffect, Show, onCleanup, onMount } from "solid-js";
+import { ICONS } from "../icons.js";
+import { useGallery } from "../state/GalleryContext.js";
+import { formatBytes, formatDate, getFileDirectory } from "../utils/gallery.js";
 
 export function InspectorModal() {
   const { inspectingImage, filteredImages, actions } = useGallery();
-  const [dimensions, setDimensions] = createSignal<{ width: number; height: number } | null>(null);
+  const [dimensions, setDimensions] = createSignal<{
+    width: number;
+    height: number;
+  } | null>(null);
   const [copiedKey, setCopiedKey] = createSignal<string | null>(null);
+  const [fitScale, setFitScale] = createSignal(1);
+  const [zoomScale, setZoomScale] = createSignal(1);
+  const [pan, setPan] = createSignal({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = createSignal(false);
+  let stage: HTMLDivElement | undefined;
+  let dragStart:
+    { x: number; y: number; panX: number; panY: number } | undefined;
+  let resizeObserver: ResizeObserver | undefined;
 
-  // Reset dimensions when the inspecting image changes
+  function calculateFitScale() {
+    const dim = dimensions();
+    if (!stage || !dim) {
+      return;
+    }
+    const bounds = stage.getBoundingClientRect();
+    const availableWidth = Math.max(1, bounds.width - 48);
+    const availableHeight = Math.max(1, bounds.height - 48);
+    const nextScale = Math.min(
+      availableWidth / dim.width,
+      availableHeight / dim.height,
+      1,
+    );
+    setFitScale(Math.max(nextScale, 0.01));
+  }
+
+  function zoomToFit() {
+    calculateFitScale();
+    setZoomScale(1);
+    setPan({ x: 0, y: 0 });
+  }
+
+  function changeZoom(amount: number) {
+    setZoomScale((current) => Math.min(8, Math.max(0.25, current + amount)));
+  }
+
+  function handleWheel(event: WheelEvent) {
+    event.preventDefault();
+    const direction = event.deltaY < 0 ? 0.1 : -0.1;
+    changeZoom(direction);
+  }
+
+  function handlePointerDown(event: PointerEvent) {
+    dragStart = {
+      x: event.clientX,
+      y: event.clientY,
+      panX: pan().x,
+      panY: pan().y,
+    };
+    setIsDragging(true);
+    event.currentTarget instanceof HTMLElement &&
+      event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function handlePointerMove(event: PointerEvent) {
+    if (!dragStart) {
+      return;
+    }
+    setPan({
+      x: dragStart.panX + event.clientX - dragStart.x,
+      y: dragStart.panY + event.clientY - dragStart.y,
+    });
+  }
+
+  function stopDragging() {
+    dragStart = undefined;
+    setIsDragging(false);
+  }
+
   createEffect(() => {
     inspectingImage();
     setDimensions(null);
+    setZoomScale(1);
+    setPan({ x: 0, y: 0 });
   });
+
+  onMount(() => {
+    resizeObserver = new ResizeObserver(() => {
+      const previousScale = zoomScale();
+      calculateFitScale();
+      if (previousScale === 1) {
+        setPan({ x: 0, y: 0 });
+      }
+    });
+    if (stage) {
+      resizeObserver.observe(stage);
+    }
+  });
+
+  onCleanup(() => resizeObserver?.disconnect());
+
+  function imageStyle() {
+    const dim = dimensions();
+    const scale = fitScale() * zoomScale();
+    return dim
+      ? {
+          width: `${dim.width * scale}px`,
+          height: `${dim.height * scale}px`,
+          transform: `translate(-50%, -50%) translate(${pan().x}px, ${pan().y}px)`,
+        }
+      : {};
+  }
 
   function handleCopy(text: string, key: string, isFull = false) {
     if (isFull) {
@@ -56,7 +154,9 @@ export function InspectorModal() {
           >
             <header class="modal-header">
               <div class="modal-title-group">
-                <span class="format-badge">{image().extension.toUpperCase()}</span>
+                <span class="format-badge">
+                  {image().extension.toUpperCase()}
+                </span>
                 <span class="modal-title" title={image().name}>
                   {image().name}
                 </span>
@@ -73,7 +173,7 @@ export function InspectorModal() {
                   class="btn-icon"
                   title="Previous image (←)"
                   aria-label="Previous image"
-                  onClick={() => actions.navigateImage('prev')}
+                  onClick={() => actions.navigateImage("prev")}
                   innerHTML={ICONS.chevronLeft}
                 />
                 <button
@@ -81,10 +181,45 @@ export function InspectorModal() {
                   class="btn-icon"
                   title="Next image (→)"
                   aria-label="Next image"
-                  onClick={() => actions.navigateImage('next')}
+                  onClick={() => actions.navigateImage("next")}
                   innerHTML={ICONS.chevronRight}
                 />
                 <div class="toolbar-divider" aria-hidden="true" />
+                <div
+                  class="preview-zoom-controls"
+                  aria-label="Image zoom controls"
+                >
+                  <button
+                    type="button"
+                    class="btn-icon preview-symbol-button"
+                    title="Zoom out (-)"
+                    aria-label="Zoom out"
+                    onClick={() => changeZoom(-0.25)}
+                  >
+                    −
+                  </button>
+                  <span class="preview-zoom-level" title="Current zoom">
+                    {Math.round(zoomScale() * 100)}%
+                  </span>
+                  <button
+                    type="button"
+                    class="btn-icon preview-symbol-button"
+                    title="Zoom in (+)"
+                    aria-label="Zoom in"
+                    onClick={() => changeZoom(0.25)}
+                  >
+                    +
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-icon"
+                    title="Zoom to fit"
+                    aria-label="Zoom to fit"
+                    onClick={zoomToFit}
+                  >
+                    Fit
+                  </button>
+                </div>
                 <button
                   type="button"
                   class="btn-icon close-btn"
@@ -97,15 +232,30 @@ export function InspectorModal() {
             </header>
 
             <div class="modal-body">
-              <div class="modal-preview-stage checkerboard">
+              <div
+                ref={(element) => {
+                  stage = element;
+                  resizeObserver?.observe(element);
+                }}
+                class="modal-preview-stage checkerboard"
+                classList={{ "is-panning": isDragging() }}
+                onWheel={handleWheel}
+              >
                 <img
+                  class="preview-image"
                   src={image().uri}
                   alt={image().name}
-                  onLoad={(e) => {
+                  style={imageStyle()}
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={stopDragging}
+                  onPointerCancel={stopDragging}
+                  onLoad={(event) => {
                     setDimensions({
-                      width: e.currentTarget.naturalWidth,
-                      height: e.currentTarget.naturalHeight,
+                      width: event.currentTarget.naturalWidth,
+                      height: event.currentTarget.naturalHeight,
                     });
+                    requestAnimationFrame(zoomToFit);
                   }}
                 />
 
@@ -126,14 +276,18 @@ export function InspectorModal() {
                     <div class="meta-row">
                       <dt class="meta-label">File Name</dt>
                       <dd class="meta-value copyable-val">
-                        <span class="text-truncate" title={image().name}>{image().name}</span>
+                        <span class="text-truncate" title={image().name}>
+                          {image().name}
+                        </span>
                         <button
                           type="button"
                           class="btn-icon-subtle"
                           title="Copy file name"
                           aria-label="Copy file name"
-                          onClick={() => handleCopy(image().name, 'name')}
-                          innerHTML={copiedKey() === 'name' ? ICONS.check : ICONS.copy}
+                          onClick={() => handleCopy(image().name, "name")}
+                          innerHTML={
+                            copiedKey() === "name" ? ICONS.check : ICONS.copy
+                          }
                         />
                       </dd>
                     </div>
@@ -152,20 +306,25 @@ export function InspectorModal() {
                     <div class="meta-row">
                       <dt class="meta-label">File Size</dt>
                       <dd class="meta-value">
-                        {formatBytes(image().sizeBytes)}{' '}
+                        {formatBytes(image().sizeBytes)}{" "}
                       </dd>
                     </div>
 
                     <div class="meta-row">
                       <dt class="meta-label">Format</dt>
                       <dd class="meta-value">
-                        <span class="format-badge">{image().extension.toUpperCase()}</span>
+                        <span class="format-badge">
+                          {image().extension.toUpperCase()}
+                        </span>
                       </dd>
                     </div>
 
                     <div class="meta-row">
                       <dt class="meta-label">Folder</dt>
-                      <dd class="meta-value text-truncate" title={getFileDirectory(image().path)}>
+                      <dd
+                        class="meta-value text-truncate"
+                        title={getFileDirectory(image().path)}
+                      >
                         {getFileDirectory(image().path)}
                       </dd>
                     </div>
@@ -173,21 +332,30 @@ export function InspectorModal() {
                     <div class="meta-row">
                       <dt class="meta-label">Relative Path</dt>
                       <dd class="meta-value copyable-val">
-                        <span class="text-truncate font-mono" title={image().path}>{image().path}</span>
+                        <span
+                          class="text-truncate font-mono"
+                          title={image().path}
+                        >
+                          {image().path}
+                        </span>
                         <button
                           type="button"
                           class="btn-icon-subtle"
                           title="Copy relative path"
                           aria-label="Copy relative path"
-                          onClick={() => handleCopy(image().path, 'relpath')}
-                          innerHTML={copiedKey() === 'relpath' ? ICONS.check : ICONS.copy}
+                          onClick={() => handleCopy(image().path, "relpath")}
+                          innerHTML={
+                            copiedKey() === "relpath" ? ICONS.check : ICONS.copy
+                          }
                         />
                       </dd>
                     </div>
 
                     <div class="meta-row">
                       <dt class="meta-label">Modified</dt>
-                      <dd class="meta-value">{formatDate(image().modifiedTimestamp)}</dd>
+                      <dd class="meta-value">
+                        {formatDate(image().modifiedTimestamp)}
+                      </dd>
                     </div>
                   </dl>
                 </div>
@@ -214,13 +382,19 @@ export function InspectorModal() {
                   <button
                     type="button"
                     class="btn btn-secondary"
-                    onClick={() => handleCopy(image().path, 'btn-relpath')}
+                    onClick={() => handleCopy(image().path, "btn-relpath")}
                   >
                     <span
                       class="btn-icon-svg"
-                      innerHTML={copiedKey() === 'btn-relpath' ? ICONS.check : ICONS.copy}
+                      innerHTML={
+                        copiedKey() === "btn-relpath" ? ICONS.check : ICONS.copy
+                      }
                     />
-                    <span>{copiedKey() === 'btn-relpath' ? 'Copied Path!' : 'Copy Relative Path'}</span>
+                    <span>
+                      {copiedKey() === "btn-relpath"
+                        ? "Copied Path!"
+                        : "Copy Relative Path"}
+                    </span>
                   </button>
                 </div>
               </aside>
