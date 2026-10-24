@@ -1,4 +1,5 @@
 const esbuild = require("esbuild");
+const { solidPlugin } = require("esbuild-plugin-solid");
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
@@ -41,7 +42,7 @@ async function main() {
 	});
 
 	const webviewCtx = await esbuild.context({
-		entryPoints: ['src/webview/main.ts'],
+		entryPoints: ['src/webview/main.tsx'],
 		bundle: true,
 		format: 'iife',
 		minify: production,
@@ -50,7 +51,7 @@ async function main() {
 		platform: 'browser',
 		outfile: 'dist/webview.js',
 		logLevel: 'silent',
-		plugins: [esbuildProblemMatcherPlugin],
+		plugins: [solidPlugin(), esbuildProblemMatcherPlugin],
 	});
 
 	if (watch) {
