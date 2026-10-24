@@ -30,7 +30,7 @@ suite('Extension Test Suite', () => {
     const manifest = extension.packageJSON;
 
     assert.strictEqual(manifest.name, 'vscode-image-gallery');
-    assert.strictEqual(manifest.publisher, 'kollinmurphy');
+    assert.strictEqual(manifest.publisher, 'KollinMurphy');
     assert.strictEqual(manifest.version, '0.0.1');
     assert.strictEqual(manifest.icon, 'icon.png');
     assert.strictEqual(manifest.license, 'MIT');
