@@ -121,7 +121,7 @@ export async function promptForFolderScope(): Promise<vscode.Uri | 'workspace' |
 
 export class GalleryPanel {
   public static currentPanel: GalleryPanel | undefined;
-  public static readonly viewType = 'vscode-image-gallery.galleryPanel';
+  public static readonly viewType = 'vscode-simple-image-gallery.galleryPanel';
   private static _lastTargetFolderUri: vscode.Uri | undefined;
   private static _hasOpenedGallery = false;
 
@@ -176,7 +176,7 @@ export class GalleryPanel {
 
     GalleryPanel._lastTargetFolderUri = targetFolderUri;
     GalleryPanel._hasOpenedGallery = true;
-    void vscode.commands.executeCommand('setContext', 'vscode-image-gallery.galleryClosed', false);
+    void vscode.commands.executeCommand('setContext', 'vscode-simple-image-gallery.galleryClosed', false);
     GalleryPanel.currentPanel = new GalleryPanel(
       panel,
       extensionUri,
@@ -278,7 +278,7 @@ export class GalleryPanel {
   public dispose() {
     GalleryPanel._lastTargetFolderUri = this._targetFolderUri;
     GalleryPanel._hasOpenedGallery = true;
-    void vscode.commands.executeCommand('setContext', 'vscode-image-gallery.galleryClosed', true);
+    void vscode.commands.executeCommand('setContext', 'vscode-simple-image-gallery.galleryClosed', true);
     GalleryPanel.currentPanel = undefined;
 
     if (this._watcherDisposable) {

@@ -23,9 +23,9 @@ A rich, interactive visual Image Gallery web GUI for Visual Studio Code. Browse,
 
 ## Commands
 
-- `Image Gallery: Open gallery for workspace` (`vscode-image-gallery.openGallery`): Opens the gallery for the workspace.
-- `Image Gallery: Open gallery for folder` (`vscode-image-gallery.openGalleryForFolder`): Prompts for a folder or gallery scope.
-- `Image Gallery: Reopen Last Gallery Tab` (`vscode-image-gallery.reopenLastGallery`): Reopens the last gallery scope. The default shortcut is `Cmd+Shift+T` on macOS or `Ctrl+Shift+T` on Windows and Linux.
+- `Image Gallery: Open gallery for workspace` (`vscode-simple-image-gallery.openGallery`): Opens the gallery for the workspace.
+- `Image Gallery: Open gallery for folder` (`vscode-simple-image-gallery.openGalleryForFolder`): Prompts for a folder or gallery scope.
+- `Image Gallery: Reopen Last Gallery Tab` (`vscode-simple-image-gallery.reopenLastGallery`): Reopens the last gallery scope. The default shortcut is `Cmd+Shift+T` on macOS or `Ctrl+Shift+T` on Windows and Linux.
 
 You can also open the gallery for an image from the editor title menu, or choose a folder from the Explorer context menu.
 

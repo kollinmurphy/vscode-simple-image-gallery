@@ -1,16 +1,16 @@
 {
-  "name": "vscode-image-gallery",
+  "name": "vscode-simple-image-gallery",
   "displayName": "Image Gallery",
   "description": "Rich interactive visual image gallery web GUI for browsing, inspecting, and managing workspace images.",
   "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kollinmurphy/vscode-image-gallery.git"
+    "url": "https://github.com/kollinmurphy/vscode-simple-image-gallery.git"
   },
   "bugs": {
-    "url": "https://github.com/kollinmurphy/vscode-image-gallery/issues"
+    "url": "https://github.com/kollinmurphy/vscode-simple-image-gallery/issues"
   },
-  "homepage": "https://github.com/kollinmurphy/vscode-image-gallery#readme",
+  "homepage": "https://github.com/kollinmurphy/vscode-simple-image-gallery#readme",
   "publisher": "KollinMurphy",
   "icon": "icon.png",
   "license": "MIT",
@@ -37,27 +37,27 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:vscode-image-gallery.openGallery",
-    "onCommand:vscode-image-gallery.openGalleryForFolder",
-    "onWebviewPanel:vscode-image-gallery.galleryPanel"
+    "onCommand:vscode-simple-image-gallery.openGallery",
+    "onCommand:vscode-simple-image-gallery.openGalleryForFolder",
+    "onWebviewPanel:vscode-simple-image-gallery.galleryPanel"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "vscode-image-gallery.openGallery",
+        "command": "vscode-simple-image-gallery.openGallery",
         "title": "Open gallery for workspace",
         "category": "Image Gallery",
         "icon": "$(file-media)"
       },
       {
-        "command": "vscode-image-gallery.openGalleryForFolder",
+        "command": "vscode-simple-image-gallery.openGalleryForFolder",
         "title": "Open gallery for folder",
         "category": "Image Gallery",
         "icon": "$(folder-opened)"
       },
       {
-        "command": "vscode-image-gallery.reopenLastGallery",
+        "command": "vscode-simple-image-gallery.reopenLastGallery",
         "title": "Reopen Last Gallery Tab",
         "category": "Image Gallery",
         "icon": "$(history)"
@@ -65,31 +65,31 @@
     ],
     "keybindings": [
       {
-        "command": "vscode-image-gallery.reopenLastGallery",
+        "command": "vscode-simple-image-gallery.reopenLastGallery",
         "key": "ctrl+shift+t",
         "mac": "cmd+shift+t",
-        "when": "vscode-image-gallery.galleryClosed"
+        "when": "vscode-simple-image-gallery.galleryClosed"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "vscode-image-gallery.openGallery"
+          "command": "vscode-simple-image-gallery.openGallery"
         },
         {
-          "command": "vscode-image-gallery.openGalleryForFolder"
+          "command": "vscode-simple-image-gallery.openGalleryForFolder"
         }
       ],
       "editor/title": [
         {
-          "command": "vscode-image-gallery.openGallery",
+          "command": "vscode-simple-image-gallery.openGallery",
           "group": "navigation",
           "when": "resourceScheme != 'vscode-webview' && resourceScheme != 'webview-panel' && resourceExtname =~ /\\.(avif|bmp|gif|ico|jpeg|jpg|png|svg|webp)$/i"
         }
       ],
       "explorer/context": [
         {
-          "command": "vscode-image-gallery.openGalleryForFolder",
+          "command": "vscode-simple-image-gallery.openGalleryForFolder",
           "group": "8_imageGallery@1",
           "when": "explorerResourceIsFolder"
         }

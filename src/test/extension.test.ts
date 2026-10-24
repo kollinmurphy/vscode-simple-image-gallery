@@ -6,7 +6,7 @@ suite('Extension Test Suite', () => {
 
   suiteSetup(async () => {
     const candidate = vscode.extensions.all.find(
-      (extensionCandidate) => extensionCandidate.packageJSON.name === 'vscode-image-gallery'
+      (extensionCandidate) => extensionCandidate.packageJSON.name === 'vscode-simple-image-gallery'
     );
     assert.ok(candidate, 'Image Gallery extension should be installed in the test host');
     extension = candidate;
@@ -15,9 +15,9 @@ suite('Extension Test Suite', () => {
 
   test('Image Gallery commands are registered after activation', async () => {
     const expectedCommands = [
-      'vscode-image-gallery.openGallery',
-      'vscode-image-gallery.openGalleryForFolder',
-      'vscode-image-gallery.reopenLastGallery',
+      'vscode-simple-image-gallery.openGallery',
+      'vscode-simple-image-gallery.openGalleryForFolder',
+      'vscode-simple-image-gallery.reopenLastGallery',
     ];
     const commands = await vscode.commands.getCommands(true);
 
@@ -29,7 +29,7 @@ suite('Extension Test Suite', () => {
   test('extension manifest contains required marketplace metadata', () => {
     const manifest = extension.packageJSON;
 
-    assert.strictEqual(manifest.name, 'vscode-image-gallery');
+    assert.strictEqual(manifest.name, 'vscode-simple-image-gallery');
     assert.strictEqual(manifest.publisher, 'KollinMurphy');
     assert.strictEqual(manifest.version, '0.0.1');
     assert.strictEqual(manifest.icon, 'icon.png');

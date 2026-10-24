@@ -25,7 +25,7 @@ async function resolveTargetFolder(uri?: vscode.Uri): Promise<vscode.Uri | undef
 export function activate(context: vscode.ExtensionContext) {
   // Command: Open for Entire Workspace; a resource URI selects its preview without changing scope.
   const openGalleryDisposable = vscode.commands.registerCommand(
-    'vscode-image-gallery.openGallery',
+    'vscode-simple-image-gallery.openGallery',
     async (uri?: vscode.Uri) => {
       GalleryPanel.createOrShow(context.extensionUri, undefined, uri?.toString());
     }
@@ -33,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Command: Explicitly open for a specific folder (prompts if no folder provided)
   const openGalleryForFolderDisposable = vscode.commands.registerCommand(
-    'vscode-image-gallery.openGalleryForFolder',
+    'vscode-simple-image-gallery.openGalleryForFolder',
     async (uri?: vscode.Uri) => {
       let targetFolder = await resolveTargetFolder(uri);
       if (!targetFolder) {
@@ -48,7 +48,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const reopenGalleryDisposable = vscode.commands.registerCommand(
-    'vscode-image-gallery.reopenLastGallery',
+    'vscode-simple-image-gallery.reopenLastGallery',
     () => GalleryPanel.reopenLast(context.extensionUri)
   );
 

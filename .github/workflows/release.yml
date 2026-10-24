@@ -42,13 +42,13 @@ jobs:
         run: xvfb-run -a npm test
 
       - name: Package VSIX
-        run: npm run package -- --out vscode-image-gallery.vsix
+        run: npm run package -- --out vscode-simple-image-gallery.vsix
 
       - name: Upload VSIX
         uses: actions/upload-artifact@v7
         with:
           name: release-package-${{ github.run_id }}
-          path: vscode-image-gallery.vsix
+          path: vscode-simple-image-gallery.vsix
           if-no-files-found: error
 
   release:
