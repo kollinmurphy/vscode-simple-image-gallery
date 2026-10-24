@@ -165,10 +165,7 @@ export class GalleryPanel {
     this._extensionUri = extensionUri;
     this._targetFolderUri = targetFolderUri;
 
-    this._panel.iconPath = {
-      light: vscode.Uri.joinPath(this._extensionUri, 'dist', 'icon-light.svg'),
-      dark: vscode.Uri.joinPath(this._extensionUri, 'dist', 'icon-dark.svg'),
-    };
+    this._panel.iconPath = vscode.Uri.joinPath(this._extensionUri, 'icon.png');
 
     this._updateTitle();
 

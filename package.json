@@ -7,6 +7,7 @@
     "url": "https://github.com/kollinmurphy/vscode-image-gallery"
   },
   "publisher": "kollinmurphy",
+  "icon": "icon.png",
   "license": "MIT",
   "engines": {
     "vscode": "^1.140.0"
