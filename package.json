@@ -3,6 +3,11 @@
   "displayName": "Image Gallery",
   "description": "Rich interactive visual image gallery web GUI for browsing, inspecting, and managing workspace images.",
   "version": "0.0.1",
+  "repository": {
+    "url": "https://github.com/kollinmurphy/vscode-image-gallery"
+  },
+  "publisher": "kollinmurphy",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.140.0"
   },
@@ -55,12 +60,13 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
+    "vscode:prepublish": "npm run build",
     "compile": "npm run check-types && npm run lint && node esbuild.js",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "build": "npm run check-types && npm run lint && node esbuild.js --production",
+    "package": "vsce package",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
@@ -74,10 +80,12 @@
     "@types/vscode": "^1.140.0",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.0.0",
+    "@vscode/vsce": "^4.0.0",
     "esbuild": "^0.28.1",
     "esbuild-plugin-solid": "^0.6.0",
     "eslint": "^10.5.0",
     "npm-run-all": "^4.1.5",
+    "prettier": "^3.9.10",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.1"
   },
