@@ -43,6 +43,7 @@ export interface GalleryActions {
   toggleSortOrder(): void;
   setZoomLevel(level: number): void;
   setViewMode(mode: ViewMode): void;
+  setToolbarCollapsed(collapsed: boolean): void;
   inspectImage(imageId: string): void;
   closeInspector(): void;
   openImage(image: GalleryImage): void;
@@ -163,6 +164,9 @@ export function GalleryProvider(props: ParentProps) {
                 : previous.filter.zoomLevel,
         },
       }));
+    },
+    setToolbarCollapsed(collapsed) {
+      updateState({ toolbarCollapsed: collapsed });
     },
     inspectImage(imageId) {
       updateState({ inspectingImageId: imageId });

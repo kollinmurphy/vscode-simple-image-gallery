@@ -28,6 +28,7 @@ export interface WebviewState {
   filter: GalleryFilter;
   viewMode: ViewMode;
   isLoading: boolean;
+  toolbarCollapsed?: boolean;
   workspaceName?: string;
   scopeLabel?: string;
 }
