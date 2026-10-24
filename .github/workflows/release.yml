@@ -45,7 +45,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-package-${{ github.run_id }}
-          path: vscode-image-gallery-*.vsix
+          path: vscode-image-gallery.vsix
           if-no-files-found: error
 
   release:
