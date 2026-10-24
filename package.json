@@ -2,7 +2,7 @@
   "name": "vscode-simple-image-gallery",
   "displayName": "Simple Image Gallery",
   "description": "Rich interactive visual image gallery web GUI for browsing, inspecting, and managing workspace images.",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "repository": {
     "type": "git",
     "url": "https://github.com/kollinmurphy/vscode-simple-image-gallery.git"
