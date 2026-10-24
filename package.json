@@ -1,23 +1,47 @@
 {
   "name": "vscode-image-gallery",
-  "displayName": "vscode-image-gallery",
-  "description": "",
+  "displayName": "Image Gallery",
+  "description": "Rich interactive visual image gallery web GUI for browsing, inspecting, and managing workspace images.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.107.0"
   },
   "categories": [
+    "Visualization",
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:vscode-image-gallery.openGallery"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "vscode-image-gallery.helloWorld",
-        "title": "Hello World"
+        "command": "vscode-image-gallery.openGallery",
+        "title": "Open Image Gallery",
+        "category": "Image Gallery",
+        "icon": "$(file-media)"
       }
-    ]
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "vscode-image-gallery.openGallery"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "vscode-image-gallery.openGallery",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "vscode-image-gallery.openGallery",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

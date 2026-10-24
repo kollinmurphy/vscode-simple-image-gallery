@@ -1,71 +1,56 @@
-# vscode-image-gallery README
+# VS Code Image Gallery Extension
 
-This is the README for your extension "vscode-image-gallery". After writing up a brief description, we recommend including the following sections.
+A rich, interactive visual Image Gallery web GUI for Visual Studio Code. Browse, inspect, filter, and manage image assets directly within your workspace editor.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Interactive Web GUI**: Full-featured Webview panel with responsive layouts.
+- **Multiple View Modes**:
+  - **Grid View**: Visual cards with transparent checkerboard support, hover zoom, and thumbnail scaling.
+  - **Compact View**: High-density square grid.
+  - **List View**: Detailed list displaying file path, format, file size, and last modified date.
+- **Search & Filtering**:
+  - Instant full-text search across image filenames and relative paths.
+  - Format chip filters (PNG, JPG, SVG, WebP, GIF, etc.) with real-time asset counts.
+  - Multi-field sorting (Name, File Size, Last Modified, File Type) with ascending/descending toggle.
+- **Dynamic Zoom Control**: Slide to resize thumbnail cards dynamically in Grid View.
+- **Detailed Inspector Lightbox**:
+  - Large preview modal with high-resolution inspection.
+  - File metadata summary (dimensions, bytes, relative and absolute paths, date).
+  - Quick actions: Open in VS Code Editor, Reveal in File Explorer, Copy Path.
+- **Live File Watcher**: Automatically detects newly added, modified, or deleted image files in your workspace and updates the GUI in real time.
+- **Session Persistence**: Restores active panels and state across VS Code restarts using `WebviewPanelSerializer`.
 
-For example if there is an image subfolder under your extension project workspace:
+## Commands
 
-\!\[feature X\]\(images/feature-x.png\)
+- `Image Gallery: Open Image Gallery` (`vscode-image-gallery.openGallery`): Opens the Image Gallery web GUI editor panel.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Architecture & Extensibility
 
-## Requirements
+- **Extension Host**:
+  - [`src/extension.ts`](file:///Users/kollinmurphy/development/projects/vscode-image-gallery/src/extension.ts): Entrypoint registering commands and panel serializers.
+  - [`src/panels/GalleryPanel.ts`](file:///Users/kollinmurphy/development/projects/vscode-image-gallery/src/panels/GalleryPanel.ts): Webview panel manager, file scanner, live file watcher, CSP configuration, and messaging host.
+- **Shared Types**:
+  - [`src/shared/types.ts`](file:///Users/kollinmurphy/development/projects/vscode-image-gallery/src/shared/types.ts): Strongly typed message bus and data models.
+- **Webview GUI**:
+  - [`src/webview/main.ts`](file:///Users/kollinmurphy/development/projects/vscode-image-gallery/src/webview/main.ts): Webview application logic, state persistence, keyboard navigation, and event handling.
+  - [`src/webview/styles.css`](file:///Users/kollinmurphy/development/projects/vscode-image-gallery/src/webview/styles.css): VS Code theme-aware styling leveraging CSS variables.
+- **Build System**:
+  - [`esbuild.js`](file:///Users/kollinmurphy/development/projects/vscode-image-gallery/esbuild.js): Bundles both Node.js extension host and browser webview assets (`dist/extension.js`, `dist/webview.js`, `dist/webview.css`).
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## Development
 
-## Extension Settings
+```bash
+# Install dependencies
+npm install
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+# Compile extension & webview bundle
+npm run compile
 
-For example:
+# Watch mode for iterative development
+npm run watch
 
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+# Run type checks and linter
+npm run check-types
+npm run lint
+```

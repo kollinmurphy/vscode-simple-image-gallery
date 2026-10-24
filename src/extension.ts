@@ -1,32 +1,26 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from "vscode";
+import * as vscode from 'vscode';
+import { GalleryPanel, GalleryPanelSerializer } from './panels/GalleryPanel';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log(
-    'Congratulations, your extension "vscode-image-gallery" is now active!',
-  );
-
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
-  const disposable = vscode.commands.registerCommand(
-    "vscode-image-gallery.helloWorld",
+  // Register command to open the Image Gallery Web GUI
+  const openGalleryDisposable = vscode.commands.registerCommand(
+    'vscode-image-gallery.openGallery',
     () => {
-      // The code you place here will be executed every time your command is executed
-      // Display a message box to the user
-      vscode.window.showInformationMessage(
-        "Hello World from vscode-image-gallery!",
-      );
-    },
+      GalleryPanel.createOrShow(context.extensionUri);
+    }
   );
 
-  context.subscriptions.push(disposable);
+  context.subscriptions.push(openGalleryDisposable);
+
+  // Register WebviewPanel serializer to restore the Gallery GUI across sessions
+  context.subscriptions.push(
+    vscode.window.registerWebviewPanelSerializer(
+      GalleryPanel.viewType,
+      new GalleryPanelSerializer(context.extensionUri)
+    )
+  );
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+  GalleryPanel.currentPanel?.dispose();
+}
