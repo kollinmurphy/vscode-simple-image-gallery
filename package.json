@@ -4,7 +4,7 @@
   "description": "Rich interactive visual image gallery web GUI for browsing, inspecting, and managing workspace images.",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.107.0"
+    "vscode": "^1.140.0"
   },
   "categories": [
     "Visualization",
@@ -58,7 +58,7 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.107.0",
+    "@types/vscode": "^1.140.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "24.x",
     "typescript-eslint": "^8.61.1",
