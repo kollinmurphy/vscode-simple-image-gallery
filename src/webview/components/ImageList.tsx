@@ -38,11 +38,6 @@ export function ImageList(props: ImageListProps) {
               role="row"
               tabIndex={0}
               onClick={() => actions.inspectImage(image.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  actions.inspectImage(image.id);
-                }
-              }}
             >
               <div class="col-thumb" role="cell">
                 <div class="list-thumb checkerboard">

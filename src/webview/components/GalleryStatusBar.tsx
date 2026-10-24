@@ -44,20 +44,6 @@ export function GalleryStatusBar() {
           <span>{totalSize()}</span>
         </span>
       </div>
-
-      <div class="status-section status-right">
-        <span class="status-hints">
-          <span class="kbd">Enter</span> Inspect
-          <span class="status-bullet" aria-hidden="true">
-            ·
-          </span>
-          <span class="kbd">←</span> <span class="kbd">→</span> Navigate
-          <span class="status-bullet" aria-hidden="true">
-            ·
-          </span>
-          <span class="kbd">Esc</span> Close
-        </span>
-      </div>
     </footer>
   );
 }

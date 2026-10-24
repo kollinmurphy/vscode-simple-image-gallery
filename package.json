@@ -35,6 +35,20 @@
         "title": "Open gallery for folder",
         "category": "Image Gallery",
         "icon": "$(folder-opened)"
+      },
+      {
+        "command": "vscode-image-gallery.reopenLastGallery",
+        "title": "Reopen Last Gallery Tab",
+        "category": "Image Gallery",
+        "icon": "$(history)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "vscode-image-gallery.reopenLastGallery",
+        "key": "ctrl+shift+t",
+        "mac": "cmd+shift+t",
+        "when": "vscode-image-gallery.galleryClosed"
       }
     ],
     "menus": {
@@ -55,7 +69,7 @@
       "explorer/context": [
         {
           "command": "vscode-image-gallery.openGalleryForFolder",
-          "group": "navigation@1",
+          "group": "8_imageGallery@1",
           "when": "explorerResourceIsFolder"
         }
       ]

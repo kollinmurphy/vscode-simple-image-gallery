@@ -27,11 +27,6 @@ export function ImageGrid(props: ImageGridProps) {
               role="gridcell"
               aria-label={`${image.name}, ${formatBytes(image.sizeBytes)}`}
               onClick={() => actions.inspectImage(image.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  actions.inspectImage(image.id);
-                }
-              }}
             >
               <div class="card-preview">
                 <img

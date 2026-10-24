@@ -10,98 +10,128 @@ import {
 export async function promptForFolderScope(): Promise<vscode.Uri | 'workspace' | undefined> {
   interface ScopeQuickPickItem extends vscode.QuickPickItem {
     uri?: vscode.Uri;
-    action?: 'workspace' | 'dialog';
+    action?: 'workspace' | 'select' | 'open' | 'back' | 'dialog';
   }
-
-  const items: ScopeQuickPickItem[] = [];
-
-  items.push({
-    label: '$(root-folder) Entire Workspace',
-    description: vscode.workspace.name ? `All folders in ${vscode.workspace.name}` : 'All folders in workspace',
-    action: 'workspace',
-  });
 
   const workspaceFolders = vscode.workspace.workspaceFolders ?? [];
-  if (workspaceFolders.length > 1) {
-    for (const folder of workspaceFolders) {
+  const ignoredFolders = new Set(['node_modules', '.git', '.vscode', 'dist', 'out', 'build']);
+  const folderStack: vscode.Uri[] = [];
+  let currentFolder: vscode.Uri | undefined;
+
+  while (true) {
+    const items: ScopeQuickPickItem[] = [];
+
+    if (!currentFolder) {
       items.push({
-        label: `$(folder) ${folder.name}`,
-        description: `Workspace root: ${folder.uri.fsPath}`,
-        uri: folder.uri,
+        label: '$(root-folder) Entire Workspace',
+        description: vscode.workspace.name ? `All folders in ${vscode.workspace.name}` : 'All folders in workspace',
+        action: 'workspace',
       });
-    }
-  }
 
-  // Offer top-level subdirectories of the workspace
-  if (workspaceFolders.length > 0) {
-    try {
-      const rootUri = workspaceFolders[0].uri;
-      const entries = await vscode.workspace.fs.readDirectory(rootUri);
-      const commonDirs = entries
-        .filter(([name, type]) => {
-          return (
-            type === vscode.FileType.Directory &&
-            !name.startsWith('.') &&
-            name !== 'node_modules' &&
-            name !== 'dist' &&
-            name !== 'out' &&
-            name !== 'build'
-          );
-        })
-        .map(([name]) => name);
-
-      for (const dirName of commonDirs.slice(0, 10)) {
-        const dirUri = vscode.Uri.joinPath(rootUri, dirName);
+      for (const folder of workspaceFolders) {
         items.push({
-          label: `$(folder) ${dirName}`,
-          description: vscode.workspace.asRelativePath(dirUri),
-          uri: dirUri,
+          label: `$(folder-opened) ${folder.name}`,
+          description: vscode.workspace.asRelativePath(folder.uri),
+          uri: folder.uri,
+          action: 'open',
         });
       }
-    } catch {
-      // Ignore directory read errors
+    } else {
+      items.push({
+        label: `$(check) Use ${path.basename(currentFolder.fsPath)}`,
+        description: vscode.workspace.asRelativePath(currentFolder, false),
+        uri: currentFolder,
+        action: 'select',
+      });
+      items.push({
+        label: folderStack.length === 0 ? '$(arrow-left) Back to workspace roots' : '$(arrow-left) Back',
+        action: 'back',
+      });
+
+      try {
+        const entries = await vscode.workspace.fs.readDirectory(currentFolder);
+        const folders = entries
+          .filter(([name, type]) =>
+            type === vscode.FileType.Directory &&
+            !name.startsWith('.') &&
+            !ignoredFolders.has(name)
+          )
+          .sort(([first], [second]) => first.localeCompare(second, undefined, { sensitivity: 'base' }));
+
+        for (const [name] of folders) {
+          items.push({
+            label: `$(folder) ${name}`,
+            uri: vscode.Uri.joinPath(currentFolder, name),
+            action: 'open',
+          });
+        }
+      } catch {
+        // Selection remains available even when directory contents cannot be read.
+      }
     }
-  }
 
-  items.push({
-    label: '$(folder-opened) Select Folder from Dialog...',
-    description: 'Browse file system to pick any folder',
-    action: 'dialog',
-  });
-
-  const selected = await vscode.window.showQuickPick(items, {
-    placeHolder: 'Select folder or workspace scope for Image Gallery',
-    title: 'Select Gallery Scope',
-  });
-
-  if (!selected) {
-    return undefined;
-  }
-
-  if (selected.action === 'workspace') {
-    return 'workspace';
-  }
-
-  if (selected.action === 'dialog') {
-    const dialogResult = await vscode.window.showOpenDialog({
-      canSelectFiles: false,
-      canSelectFolders: true,
-      canSelectMany: false,
-      openLabel: 'Open in Image Gallery',
-      title: 'Select Folder for Image Gallery',
+    items.push({
+      label: '$(folder-opened) Browse for another folder...',
+      description: 'Choose a folder outside the workspace hierarchy',
+      action: 'dialog',
     });
-    if (dialogResult && dialogResult.length > 0) {
-      return dialogResult[0];
-    }
-    return undefined;
-  }
 
-  return selected.uri;
+    const selected = await vscode.window.showQuickPick(items, {
+      placeHolder: currentFolder
+        ? `Browse folders within ${path.basename(currentFolder.fsPath)}`
+        : 'Select a gallery scope',
+      title: 'Select Gallery Scope',
+    });
+
+    if (!selected) {
+      return undefined;
+    }
+
+    switch (selected.action) {
+      case 'workspace':
+        return 'workspace';
+      case 'select':
+        return selected.uri;
+      case 'open':
+        if (!currentFolder && selected.uri) {
+          folderStack.push(selected.uri);
+          currentFolder = selected.uri;
+        } else if (selected.uri) {
+          folderStack.push(selected.uri);
+          currentFolder = selected.uri;
+        }
+        break;
+      case 'back':
+        folderStack.pop();
+        currentFolder = folderStack.at(-1);
+        break;
+      case 'dialog': {
+        const dialogResult = await vscode.window.showOpenDialog({
+          canSelectFiles: false,
+          canSelectFolders: true,
+          canSelectMany: false,
+          openLabel: 'Select Folder',
+          title: 'Select Folder for Image Gallery',
+        });
+        return dialogResult?.[0];
+      }
+    }
+  }
 }
 
 export class GalleryPanel {
   public static currentPanel: GalleryPanel | undefined;
   public static readonly viewType = 'vscode-image-gallery.galleryPanel';
+  private static _lastTargetFolderUri: vscode.Uri | undefined;
+  private static _hasOpenedGallery = false;
+
+  public static reopenLast(extensionUri: vscode.Uri): boolean {
+    if (!GalleryPanel._hasOpenedGallery) {
+      return false;
+    }
+    GalleryPanel.createOrShow(extensionUri, GalleryPanel._lastTargetFolderUri);
+    return true;
+  }
 
   private readonly _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
@@ -138,6 +168,9 @@ export class GalleryPanel {
       }
     );
 
+    GalleryPanel._lastTargetFolderUri = targetFolderUri;
+    GalleryPanel._hasOpenedGallery = true;
+    void vscode.commands.executeCommand('setContext', 'vscode-image-gallery.galleryClosed', false);
     GalleryPanel.currentPanel = new GalleryPanel(panel, extensionUri, targetFolderUri);
   }
 
@@ -224,6 +257,9 @@ export class GalleryPanel {
   }
 
   public dispose() {
+    GalleryPanel._lastTargetFolderUri = this._targetFolderUri;
+    GalleryPanel._hasOpenedGallery = true;
+    void vscode.commands.executeCommand('setContext', 'vscode-image-gallery.galleryClosed', true);
     GalleryPanel.currentPanel = undefined;
 
     if (this._watcherDisposable) {

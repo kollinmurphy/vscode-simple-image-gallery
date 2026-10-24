@@ -48,7 +48,12 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  context.subscriptions.push(openGalleryDisposable, openGalleryForFolderDisposable);
+  const reopenGalleryDisposable = vscode.commands.registerCommand(
+    'vscode-image-gallery.reopenLastGallery',
+    () => GalleryPanel.reopenLast(context.extensionUri)
+  );
+
+  context.subscriptions.push(openGalleryDisposable, openGalleryForFolderDisposable, reopenGalleryDisposable);
 
   // Register WebviewPanel serializer to restore the Gallery GUI across sessions
   context.subscriptions.push(
