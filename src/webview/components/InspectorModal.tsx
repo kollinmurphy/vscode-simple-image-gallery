@@ -1,4 +1,11 @@
-import { createSignal, createEffect, Show, onCleanup, onMount } from "solid-js";
+import {
+  batch,
+  createSignal,
+  createEffect,
+  Show,
+  onCleanup,
+  onMount,
+} from "solid-js";
 import { ICONS } from "../icons.js";
 import { useGallery } from "../state/GalleryContext.js";
 import { formatBytes, formatDate, getFileDirectory } from "../utils/gallery.js";
@@ -12,6 +19,7 @@ export function InspectorModal() {
   const [copiedKey, setCopiedKey] = createSignal<string | null>(null);
   const [fitScale, setFitScale] = createSignal(1);
   const [zoomScale, setZoomScale] = createSignal(1);
+  const [isImageReady, setIsImageReady] = createSignal(false);
   const [pan, setPan] = createSignal({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = createSignal(false);
   let stage: HTMLDivElement | undefined;
@@ -19,8 +27,7 @@ export function InspectorModal() {
     { x: number; y: number; panX: number; panY: number } | undefined;
   let resizeObserver: ResizeObserver | undefined;
 
-  function calculateFitScale() {
-    const dim = dimensions();
+  function calculateFitScale(dim = dimensions()) {
     if (!stage || !dim) {
       return;
     }
@@ -41,14 +48,24 @@ export function InspectorModal() {
     setPan({ x: 0, y: 0 });
   }
 
-  function changeZoom(amount: number) {
-    setZoomScale((current) => Math.min(8, Math.max(0.25, current + amount)));
+  function changeZoom(direction: 1 | -1) {
+    const zoomStops = [25, 50, 75, 100, 125, 150, 200, 300, 400, 800];
+    const currentPercent = fitScale() * zoomScale() * 100;
+    const nextPercent =
+      direction === 1
+        ? zoomStops.find((percent) => percent > currentPercent)
+        : zoomStops.findLast((percent) => percent < currentPercent);
+
+    if (nextPercent === undefined) {
+      return;
+    }
+
+    setZoomScale(nextPercent / 100 / fitScale());
   }
 
   function handleWheel(event: WheelEvent) {
     event.preventDefault();
-    const direction = event.deltaY < 0 ? 0.1 : -0.1;
-    changeZoom(direction);
+    changeZoom(event.deltaY < 0 ? 1 : -1);
   }
 
   function handlePointerDown(event: PointerEvent) {
@@ -85,6 +102,7 @@ export function InspectorModal() {
   createEffect(() => {
     inspectingImage();
     setDimensions(null);
+    setIsImageReady(false);
     setZoomScale(1);
     setPan({ x: 0, y: 0 });
   });
@@ -195,19 +213,19 @@ export function InspectorModal() {
                     class="btn-icon preview-symbol-button"
                     title="Zoom out (-)"
                     aria-label="Zoom out"
-                    onClick={() => changeZoom(-0.25)}
+                    onClick={() => changeZoom(-1)}
                   >
                     −
                   </button>
-                  <span class="preview-zoom-level" title="Current zoom">
-                    {Math.round(zoomScale() * 100)}%
+                  <span class="preview-zoom-level" title="Current image scale">
+                    {Math.round(fitScale() * zoomScale() * 100)}%
                   </span>
                   <button
                     type="button"
                     class="btn-icon preview-symbol-button"
                     title="Zoom in (+)"
                     aria-label="Zoom in"
-                    onClick={() => changeZoom(0.25)}
+                    onClick={() => changeZoom(1)}
                   >
                     +
                   </button>
@@ -247,18 +265,27 @@ export function InspectorModal() {
                   src={image().uri}
                   alt={image().name}
                   draggable={false}
-                  style={imageStyle()}
+                  style={{
+                    ...imageStyle(),
+                    visibility: isImageReady() ? "visible" : "hidden",
+                  }}
                   onDragStart={(event) => event.preventDefault()}
                   onPointerDown={handlePointerDown}
                   onPointerMove={handlePointerMove}
                   onPointerUp={stopDragging}
                   onPointerCancel={stopDragging}
                   onLoad={(event) => {
-                    setDimensions({
+                    const nextDimensions = {
                       width: event.currentTarget.naturalWidth,
                       height: event.currentTarget.naturalHeight,
+                    };
+                    batch(() => {
+                      setDimensions(nextDimensions);
+                      calculateFitScale(nextDimensions);
+                      setZoomScale(1);
+                      setPan({ x: 0, y: 0 });
+                      setIsImageReady(true);
                     });
-                    requestAnimationFrame(zoomToFit);
                   }}
                 />
               </div>
