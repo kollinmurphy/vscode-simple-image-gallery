@@ -260,155 +260,169 @@ export function InspectorModal() {
                 classList={{ "is-panning": isDragging() }}
                 onWheel={handleWheel}
               >
-                <img
-                  class="preview-image"
-                  src={image().uri}
-                  alt={image().name}
-                  draggable={false}
-                  style={{
-                    ...imageStyle(),
-                    visibility: isImageReady() ? "visible" : "hidden",
-                  }}
-                  onDragStart={(event) => event.preventDefault()}
-                  onPointerDown={handlePointerDown}
-                  onPointerMove={handlePointerMove}
-                  onPointerUp={stopDragging}
-                  onPointerCancel={stopDragging}
-                  onLoad={(event) => {
-                    const nextDimensions = {
-                      width: event.currentTarget.naturalWidth,
-                      height: event.currentTarget.naturalHeight,
-                    };
-                    batch(() => {
-                      setDimensions(nextDimensions);
-                      calculateFitScale(nextDimensions);
-                      setZoomScale(1);
-                      setPan({ x: 0, y: 0 });
-                      setIsImageReady(true);
-                    });
-                  }}
-                />
+                <Show keyed when={image().id}>
+                  <div class="modal-preview-image-transition">
+                    <img
+                      class="preview-image"
+                      src={image().uri}
+                      alt={image().name}
+                      draggable={false}
+                      style={{
+                        ...imageStyle(),
+                        visibility: isImageReady() ? "visible" : "hidden",
+                      }}
+                      onDragStart={(event) => event.preventDefault()}
+                      onPointerDown={handlePointerDown}
+                      onPointerMove={handlePointerMove}
+                      onPointerUp={stopDragging}
+                      onPointerCancel={stopDragging}
+                      onLoad={(event) => {
+                        const nextDimensions = {
+                          width: event.currentTarget.naturalWidth,
+                          height: event.currentTarget.naturalHeight,
+                        };
+                        batch(() => {
+                          setDimensions(nextDimensions);
+                          calculateFitScale(nextDimensions);
+                          setZoomScale(1);
+                          setPan({ x: 0, y: 0 });
+                          setIsImageReady(true);
+                        });
+                      }}
+                    />
+                  </div>
+                </Show>
               </div>
 
               <aside class="modal-sidebar">
-                <div class="meta-section">
-                  <div class="section-heading">Details</div>
+                <Show keyed when={image().id}>
+                  <div class="modal-sidebar-content">
+                    <div class="meta-section">
+                      <div class="section-heading">Details</div>
 
-                  <dl class="meta-list">
-                    <div class="meta-row">
-                      <dt class="meta-label">File Name</dt>
-                      <dd class="meta-value copyable-val">
-                        <span class="text-truncate" title={image().name}>
-                          {image().name}
-                        </span>
-                        <button
-                          type="button"
-                          class="btn-icon-subtle"
-                          title="Copy file name"
-                          aria-label="Copy file name"
-                          onClick={() => handleCopy(image().name, "name")}
-                          innerHTML={
-                            copiedKey() === "name" ? ICONS.check : ICONS.copy
-                          }
-                        />
-                      </dd>
-                    </div>
-
-                    <Show when={dimensions()}>
-                      {(dim) => (
+                      <dl class="meta-list">
                         <div class="meta-row">
-                          <dt class="meta-label">Dimensions</dt>
-                          <dd class="meta-value font-mono">
-                            {dim().width} × {dim().height} px
+                          <dt class="meta-label">File Name</dt>
+                          <dd class="meta-value copyable-val">
+                            <span class="text-truncate" title={image().name}>
+                              {image().name}
+                            </span>
+                            <button
+                              type="button"
+                              class="btn-icon-subtle"
+                              title="Copy file name"
+                              aria-label="Copy file name"
+                              onClick={() => handleCopy(image().name, "name")}
+                              innerHTML={
+                                copiedKey() === "name"
+                                  ? ICONS.check
+                                  : ICONS.copy
+                              }
+                            />
                           </dd>
                         </div>
-                      )}
-                    </Show>
 
-                    <div class="meta-row">
-                      <dt class="meta-label">File Size</dt>
-                      <dd class="meta-value">
-                        {formatBytes(image().sizeBytes)}{" "}
-                      </dd>
+                        <Show when={dimensions()}>
+                          {(dim) => (
+                            <div class="meta-row">
+                              <dt class="meta-label">Dimensions</dt>
+                              <dd class="meta-value font-mono">
+                                {dim().width} × {dim().height} px
+                              </dd>
+                            </div>
+                          )}
+                        </Show>
+
+                        <div class="meta-row">
+                          <dt class="meta-label">File Size</dt>
+                          <dd class="meta-value">
+                            {formatBytes(image().sizeBytes)}{" "}
+                          </dd>
+                        </div>
+
+                        <div class="meta-row">
+                          <dt class="meta-label">Relative Path</dt>
+                          <dd class="meta-value copyable-val">
+                            <span class="font-mono" title={image().path}>
+                              {image().path}
+                            </span>
+                            <button
+                              type="button"
+                              class="btn-icon-subtle"
+                              title="Copy relative path"
+                              aria-label="Copy relative path"
+                              onClick={() =>
+                                handleCopy(image().path, "relpath")
+                              }
+                              innerHTML={
+                                copiedKey() === "relpath"
+                                  ? ICONS.check
+                                  : ICONS.copy
+                              }
+                            />
+                          </dd>
+                        </div>
+
+                        <div class="meta-row">
+                          <dt class="meta-label">Full Path</dt>
+                          <dd class="meta-value copyable-val">
+                            <span class="font-mono" title={image().fullPath}>
+                              {image().fullPath}
+                            </span>
+                            <button
+                              type="button"
+                              class="btn-icon-subtle"
+                              title="Copy full path"
+                              aria-label="Copy full path"
+                              onClick={() =>
+                                handleCopy(image().fullPath, "fullPath", true)
+                              }
+                              innerHTML={
+                                copiedKey() === "fullPath"
+                                  ? ICONS.check
+                                  : ICONS.copy
+                              }
+                            />
+                          </dd>
+                        </div>
+
+                        <div class="meta-row">
+                          <dt class="meta-label">Created</dt>
+                          <dd class="meta-value">
+                            {formatDate(image().createdTimestamp)}
+                          </dd>
+                        </div>
+
+                        <div class="meta-row">
+                          <dt class="meta-label">Modified</dt>
+                          <dd class="meta-value">
+                            {formatDate(image().modifiedTimestamp)}
+                          </dd>
+                        </div>
+                      </dl>
                     </div>
 
-                    <div class="meta-row">
-                      <dt class="meta-label">Relative Path</dt>
-                      <dd class="meta-value copyable-val">
-                        <span class="font-mono" title={image().path}>
-                          {image().path}
-                        </span>
-                        <button
-                          type="button"
-                          class="btn-icon-subtle"
-                          title="Copy relative path"
-                          aria-label="Copy relative path"
-                          onClick={() => handleCopy(image().path, "relpath")}
-                          innerHTML={
-                            copiedKey() === "relpath" ? ICONS.check : ICONS.copy
-                          }
-                        />
-                      </dd>
+                    <div class="modal-actions">
+                      <button
+                        type="button"
+                        class="btn btn-primary"
+                        onClick={() => actions.openImage(image())}
+                      >
+                        <span class="btn-icon-svg" innerHTML={ICONS.external} />
+                        <span>Open in VS Code</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        onClick={() => actions.revealImage(image())}
+                      >
+                        <span class="btn-icon-svg" innerHTML={ICONS.folder} />
+                        <span>Reveal in Explorer</span>
+                      </button>
                     </div>
-
-                    <div class="meta-row">
-                      <dt class="meta-label">Full Path</dt>
-                      <dd class="meta-value copyable-val">
-                        <span class="font-mono" title={image().fullPath}>
-                          {image().fullPath}
-                        </span>
-                        <button
-                          type="button"
-                          class="btn-icon-subtle"
-                          title="Copy full path"
-                          aria-label="Copy full path"
-                          onClick={() =>
-                            handleCopy(image().fullPath, "fullPath", true)
-                          }
-                          innerHTML={
-                            copiedKey() === "fullPath"
-                              ? ICONS.check
-                              : ICONS.copy
-                          }
-                        />
-                      </dd>
-                    </div>
-
-                    <div class="meta-row">
-                      <dt class="meta-label">Created</dt>
-                      <dd class="meta-value">
-                        {formatDate(image().createdTimestamp)}
-                      </dd>
-                    </div>
-
-                    <div class="meta-row">
-                      <dt class="meta-label">Modified</dt>
-                      <dd class="meta-value">
-                        {formatDate(image().modifiedTimestamp)}
-                      </dd>
-                    </div>
-                  </dl>
-                </div>
-
-                <div class="modal-actions">
-                  <button
-                    type="button"
-                    class="btn btn-primary"
-                    onClick={() => actions.openImage(image())}
-                  >
-                    <span class="btn-icon-svg" innerHTML={ICONS.external} />
-                    <span>Open in VS Code</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    onClick={() => actions.revealImage(image())}
-                  >
-                    <span class="btn-icon-svg" innerHTML={ICONS.folder} />
-                    <span>Reveal in Explorer</span>
-                  </button>
-                </div>
+                  </div>
+                </Show>
               </aside>
             </div>
           </div>
